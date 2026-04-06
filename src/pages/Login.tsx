@@ -6,6 +6,7 @@ const Login = () => {
   
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [loginMessage, setLoginMessage] = useState('')
     const navigate = useNavigate()
 
     const handleLogin = async (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -16,12 +17,12 @@ const Login = () => {
         })
 
         if(error) {
-            console.log(error)
+            setLoginMessage(error.message)
             return
         }
         if(data) {
-            console.log(data)
-            navigate("/home")
+            setLoginMessage("Login successfully")
+            setTimeout(() => navigate("/home"), 1000);
         }
     }
 
@@ -32,6 +33,7 @@ const Login = () => {
                 <input placeholder="Password" name="password" onChange={(e) => setPassword(e.target.value)} />
                 <button type="submit">Submit</button>
             </form>
+            {loginMessage && <p>{loginMessage}</p>}
         </div>
     )
 }

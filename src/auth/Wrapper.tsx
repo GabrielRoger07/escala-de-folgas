@@ -2,7 +2,11 @@ import { useEffect, useState } from "react"
 import { supabase } from "../config/supabaseClient"
 import { Navigate } from "react-router-dom"
 
-function Wrapper({ children }) {
+type WrapperProps = {
+  children: React.ReactNode
+}
+
+function Wrapper({ children }: WrapperProps) {
 
     const [authenticated, setAuthenticated] = useState(false)
     const [loading, setLoading] = useState(true)
