@@ -30,9 +30,8 @@ export function useSetores() {
     const { data, error } = await supabase
       .from("setores")
       .select("*")
-      .order("created_at", { ascending: false })
+      .order("nome_setor", { ascending: true })
     
-    console.log(data)
     setIsLoading(false)
     if (error) {
       showFeedback("Erro ao carregar setores. Tente recarregar a página.", "error")
@@ -41,7 +40,12 @@ export function useSetores() {
     setSetores(data ?? [])
   }, [showFeedback])
 
-  useEffect(() => { fetchSetores() }, [fetchSetores])
+  useEffect(() => { 
+    const loadSetores = async () => {
+      await fetchSetores();
+    }
+    loadSetores() 
+  }, [fetchSetores])
 
   // ── Mutations ─────────────────────────────────────────────────────────────
 
@@ -65,7 +69,7 @@ export function useSetores() {
   async function deleteSetor(setor: Setor): Promise<boolean> {
     const { error } = await supabase.from("setores").delete().eq("id", setor.id)
     if (error) { showFeedback("Erro ao excluir setor. Tente novamente.", "error"); return false }
-    showFeedback(`Setor "${setor.nome}" excluído com sucesso.`, "success")
+    showFeedback(`Setor "${setor.nome_setor}" excluído com sucesso.`, "success")
     await fetchSetores()
     return true
   }

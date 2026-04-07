@@ -33,21 +33,21 @@ export type SetorUpdate = {
 
 export type Funcionario = {
   id: string
-  nome: string
+  nome_funcionario: string
   id_setor: string
   ativo: boolean
   created_at: string
 }
 
 export type FuncionarioInsert = {
-  nome: string
+  nome_funcionario: string
   id_setor: string
   ativo?: boolean
 }
 
 export type FuncionarioUpdate = {
   id: string
-  nome: string
+  nome_funcionario: string
   id_setor: string
   ativo: boolean
 }
