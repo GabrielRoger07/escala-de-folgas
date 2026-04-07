@@ -1,0 +1,77 @@
+import { useState } from "react"
+import { AlertTriangle, Loader2, Trash2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import type { Setor } from "@/types/database"
+
+interface DeleteConfirmProps {
+  setor: Setor
+  onCancel: () => void
+  onDelete: (setor: Setor) => Promise<boolean>
+}
+
+export function DeleteConfirm({ setor, onCancel, onDelete }: DeleteConfirmProps) {
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  async function handleDelete() {
+    setIsDeleting(true)
+    const ok = await onDelete(setor)
+    setIsDeleting(false)
+    if (ok) onCancel()
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-5"
+      onClick={(e) => { if (e.target === e.currentTarget) onCancel() }}
+    >
+      <div className="animate-fade-in absolute inset-0 bg-background/80 backdrop-blur-sm" />
+
+      <div className="animate-fade-up relative z-10 w-full max-w-sm rounded-2xl border border-border bg-card p-8 shadow-2xl">
+
+        <div className="mb-5 flex justify-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-destructive/30 bg-destructive/10">
+            <AlertTriangle size={22} className="text-destructive" strokeWidth={1.5} />
+          </div>
+        </div>
+
+        <div className="mb-7 text-center">
+          <h2 className="mb-2 text-base font-semibold text-foreground">Excluir setor?</h2>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Esta ação não pode ser desfeita. Todos os dados vinculados ao setor{" "}
+            <span className="font-semibold text-foreground">"{setor.nome_setor}"</span>{" "}
+            serão perdidos.
+          </p>
+        </div>
+
+        <div className="flex gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            className="flex-1 h-11 text-xs font-bold uppercase tracking-[0.06em]"
+            onClick={onCancel}
+            disabled={isDeleting}
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="button"
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className={cn(
+              "flex-1 h-11 text-xs font-bold uppercase tracking-[0.06em]",
+              "bg-destructive text-white hover:bg-destructive/90 hover:-translate-y-px hover:shadow-lg hover:shadow-destructive/20"
+            )}
+          >
+            {isDeleting ? (
+              <><Loader2 size={13} className="animate-spin" />Excluindo...</>
+            ) : (
+              <><Trash2 size={13} />Excluir</>
+            )}
+          </Button>
+        </div>
+
+      </div>
+    </div>
+  )
+}

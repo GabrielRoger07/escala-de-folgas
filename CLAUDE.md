@@ -22,7 +22,9 @@ Regras de negócio principais:
 - **Frontend:** React 19 + TypeScript + Vite
 - **Roteamento:** React Router DOM v7
 - **BaaS:** Supabase (Auth + PostgreSQL)
-- **Estilo:** CSS puro com variáveis (sem framework)
+- **UI:** shadcn/ui (estilo `radix-nova`, cor base `neutral`)
+- **Estilização:** Tailwind CSS v4 (via plugin `@tailwindcss/vite`)
+- **Ícones:** Lucide React (instalado pelo shadcn)
 - **Dev server:** porta 3000
 
 ---
@@ -32,17 +34,46 @@ Regras de negócio principais:
 ```
 src/
   auth/
-    Wrapper.tsx        ← Guard de rota (protege rotas autenticadas)
+    ProtectedRoute.tsx   ← Guard de rota (protege rotas autenticadas)
   components/
-    Navbar.tsx         ← Navbar com botão de logout
+    layout/
+      Navbar.tsx         ← Navbar com botão de logout
+    ui/                  ← Componentes shadcn (gerados pelo CLI, não editar manualmente)
+    FormField.tsx        ← Componente reutilizável de campo de formulário (Label + Input)
   config/
-    supabaseClient.ts  ← Inicialização do cliente Supabase
+    supabaseClient.ts    ← Inicialização do cliente Supabase
+  lib/
+    utils.ts             ← Utilitário cn() do shadcn (merge de classes Tailwind)
   pages/
-    Login.tsx          ← Página de login
-    Home.tsx           ← Página principal (protegida)
-  App.tsx              ← Roteamento principal
-  main.tsx             ← Entry point
+    Login.tsx            ← Página de login
+    Home.tsx             ← Página principal (protegida)
+    setores/
+      components/        ← Componentes exclusivos da feature de setores
+        SetorCard.tsx    ← Card de exibição de um setor (com skeleton)
+        SetorModal.tsx   ← Modal de criação/edição de setor
+        DeleteConfirm.tsx ← Dialog de confirmação de exclusão
+      hooks/
+        useSetores.ts    ← Hook com toda a lógica de estado e mutations de setores
+      index.tsx          ← Página de listagem de setores
+  styles/
+    index.css            ← CSS global (Tailwind + variáveis de tema)
+  types/
+    database.ts          ← Tipos TypeScript de todas as entidades do banco (Row/Insert/Update)
+  App.tsx                ← Roteamento principal
+  main.tsx               ← Entry point
 ```
+
+### Convenção de organização por feature (pages/)
+
+Cada feature de página segue a estrutura:
+```
+pages/<feature>/
+  components/   ← componentes usados apenas por esta página
+  hooks/        ← hooks de estado/lógica usados apenas por esta página
+  index.tsx     ← o componente de página em si (rota)
+```
+
+Componentes compartilhados entre páginas ficam em `src/components/`.
 
 ---
 
@@ -51,7 +82,52 @@ src/
 | Path | Componente | Protegida |
 |---|---|---|
 | `/` | Login | Não |
-| `/home` | Home + Wrapper | Sim |
+| `/home` | Home + ProtectedRoute | Sim |
+| `/setores` | Setores + ProtectedRoute | Sim |
+
+---
+
+## shadcn/ui e Tailwind
+
+### Configuração (`components.json`)
+
+- **Estilo:** `radix-nova`
+- **Cor base:** `neutral`
+- **CSS variables:** habilitado
+- **CSS entry:** `src/index.css`
+- **Ícones:** `lucide`
+
+### Aliases configurados
+
+| Alias | Caminho |
+|---|---|
+| `@/components` | `src/components` |
+| `@/components/ui` | `src/components/ui` |
+| `@/lib` | `src/lib` |
+| `@/hooks` | `src/hooks` |
+
+### Como adicionar componentes
+
+```bash
+npx shadcn@latest add <componente>
+# Exemplos:
+npx shadcn@latest add button
+npx shadcn@latest add input
+npx shadcn@latest add table
+npx shadcn@latest add dialog
+npx shadcn@latest add select
+```
+
+Componentes são copiados para `src/components/ui/` e importados como:
+```ts
+import { Button } from '@/components/ui/button'
+```
+
+### Tailwind v4
+
+- Instalado via plugin Vite (`@tailwindcss/vite`) — sem `tailwind.config.js`
+- Configuração feita diretamente no `src/index.css` via `@import "tailwindcss"`
+- O alias `@` aponta para `src/` (configurado em `vite.config.ts` e `tsconfig.app.json`)
 
 ---
 
@@ -83,7 +159,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey)
 
 - Login: `supabase.auth.signInWithPassword()`
 - Logout: `supabase.auth.signOut()`
-- Verificação de sessão: `supabase.auth.onAuthStateChange()` (reativo, preferir sobre `getSession`)
+- Verificação de sessão: `supabase.auth.getSession()`
 - JWT armazenado automaticamente no localStorage pelo SDK
 - O SDK renova o token automaticamente
 
@@ -159,20 +235,15 @@ Trigger no Supabase que popula `profiles` automaticamente quando um usuário é 
 
 ## O que está pendente
 
-1. **Correções no código existente**
-   - `Wrapper.tsx`: substituir `getSession()` por `onAuthStateChange()` e tipar o prop `children`
-   - `Login.tsx`: exibir mensagem de erro ao usuário em vez de só logar no console
-   - `supabaseClient.ts`: adicionar validação das variáveis de ambiente
+1. **RLS policies** nas 4 tabelas (`setores`, `funcionarios`, `escalas`, `folgas`)
 
-2. **RLS policies** nas 4 tabelas (`setores`, `funcionarios`, `escalas`, `folgas`)
-
-3. **Frontend — páginas a construir**
-   - Cadastro e listagem de setores
+2. **Frontend — páginas a construir**
+   - ~~Cadastro e listagem de setores~~ ✅ Concluído
    - Cadastro e listagem de funcionários por setor
    - Geração de escala por setor/mês
    - Visualização da escala gerada
 
-4. **Algoritmo de geração automática de escala**
+3. **Algoritmo de geração automática de escala**
    - Respeitar 1 folga por semana por funcionário
    - Garantir pelo menos 1 domingo por mês por funcionário
    - Respeitar `minimo_por_dia` por setor

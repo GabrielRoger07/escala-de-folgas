@@ -1,0 +1,274 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN SYSTEM — Escala de Folgas
+   ─────────────────────────────────────────────────────────────────────────────
+   Stack  : Tailwind CSS v4 (CSS-first) + shadcn/ui (radix-nova)
+   Palette: Warm Amber × Warm Neutral
+   Colors : OKLCH throughout (perceptually uniform, great for dark mode)
+   Radius : 0.5 rem (8 px) — professional, approachable
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@fontsource-variable/geist";
+
+/* ── Dark mode strategy: class-based (.dark on <html>) ── */
+@custom-variant dark (&:is(.dark *));
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   @THEME INLINE
+   Bridge between CSS custom properties (defined in :root/.dark below)
+   and Tailwind utility classes (bg-primary, text-muted-foreground, etc.)
+   ───────────────────────────────────────────────────────────────────────────── */
+@theme inline {
+
+  /* ── Typography ── */
+  --font-sans:    'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-heading: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+
+  /* ── Semantic colors (shadcn-compatible naming) ── */
+  --color-background:           var(--background);
+  --color-foreground:           var(--foreground);
+
+  --color-card:                 var(--card);
+  --color-card-foreground:      var(--card-foreground);
+
+  --color-popover:              var(--popover);
+  --color-popover-foreground:   var(--popover-foreground);
+
+  --color-primary:              var(--primary);
+  --color-primary-foreground:   var(--primary-foreground);
+
+  --color-secondary:            var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted:                var(--muted);
+  --color-muted-foreground:     var(--muted-foreground);
+
+  --color-accent:               var(--accent);
+  --color-accent-foreground:    var(--accent-foreground);
+
+  --color-destructive:          var(--destructive);
+
+  --color-success:              var(--success);
+  --color-success-foreground:   var(--success-foreground);
+
+  --color-warning:              var(--warning);
+  --color-warning-foreground:   var(--warning-foreground);
+
+  --color-border:               var(--border);
+  --color-input:                var(--input);
+  --color-ring:                 var(--ring);
+
+  /* ── Sidebar ── */
+  --color-sidebar:                    var(--sidebar);
+  --color-sidebar-foreground:         var(--sidebar-foreground);
+  --color-sidebar-primary:            var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent:             var(--sidebar-accent);
+  --color-sidebar-accent-foreground:  var(--sidebar-accent-foreground);
+  --color-sidebar-border:             var(--sidebar-border);
+  --color-sidebar-ring:               var(--sidebar-ring);
+
+  /* ── Charts ── */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* ── Border radius scale ──
+     Base: --radius (8px) defined in :root.
+     Scale multipliers keep all components proportional. */
+  --radius-xs:  calc(var(--radius) * 0.5);   /*  4px */
+  --radius-sm:  calc(var(--radius) * 0.75);  /*  6px */
+  --radius-md:  var(--radius);               /*  8px */
+  --radius-lg:  calc(var(--radius) * 1.5);   /* 12px */
+  --radius-xl:  calc(var(--radius) * 2);     /* 16px */
+  --radius-2xl: calc(var(--radius) * 2.75);  /* 22px */
+  --radius-full: 9999px;
+
+  /* ── Animations ──
+     Use as: className="animate-fade-in" or "animate-fade-up" */
+  --animate-fade-in:  fade-in  0.25s ease both;
+  --animate-fade-up:  fade-up  0.40s cubic-bezier(0.22, 0.68, 0, 1.2) both;
+  --animate-slide-in: slide-in 0.30s ease both;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LIGHT MODE TOKENS
+   ─────────────────────────────────────────────────────────────────────────────
+   Naming: all hues biased toward 70 (yellow-amber direction) for warmth.
+   This keeps neutrals from feeling cold without being overtly "warm".
+   ───────────────────────────────────────────────────────────────────────────── */
+:root {
+  /* ── Surfaces ── */
+  --background: oklch(0.990 0.003 75);  /* off-white, barely warm          */
+  --foreground: oklch(0.140 0.010 70);  /* deep warm charcoal, not #000    */
+
+  --card:             oklch(1     0     0);   /* pure white — contrast vs bg */
+  --card-foreground:  oklch(0.140 0.010 70);
+
+  --popover:          oklch(1     0     0);
+  --popover-foreground: oklch(0.140 0.010 70);
+
+  /* ── Primary — amber-brown ──
+     L=0.52 gives ≥4.5:1 contrast on white (WCAG AA ✓).
+     Connects to bakery domain: wheat, bread crust. */
+  --primary:            oklch(0.520 0.130 60);
+  --primary-foreground: oklch(0.990 0.003 75);
+
+  /* ── Secondary — light warm gray (ghost/chip surfaces) ── */
+  --secondary:            oklch(0.960 0.005 75);
+  --secondary-foreground: oklch(0.250 0.010 70);
+
+  /* ── Muted — disabled states, subtle backgrounds ── */
+  --muted:            oklch(0.960 0.005 75);
+  --muted-foreground: oklch(0.520 0.010 70);  /* ≥4.5:1 on white ✓ */
+
+  /* ── Accent — same as secondary (shadcn convention) ── */
+  --accent:            oklch(0.960 0.005 75);
+  --accent-foreground: oklch(0.250 0.010 70);
+
+  /* ── Semantic status ── */
+  --destructive:         oklch(0.540 0.215 25);  /* warm red, AA on white ✓ */
+
+  --success:             oklch(0.500 0.130 145);  /* forest green            */
+  --success-foreground:  oklch(0.990 0.003 75);
+
+  --warning:             oklch(0.720 0.150 75);   /* amber — distinct from primary */
+  --warning-foreground:  oklch(0.140 0.010 70);
+
+  /* ── Chrome ── */
+  --border: oklch(0.900 0.005 75);
+  --input:  oklch(0.900 0.005 75);
+  --ring:   oklch(0.600 0.130 65);  /* amber focus ring — matches primary family */
+
+  /* ── Radius base ── */
+  --radius: 0.5rem;  /* 8px */
+
+  /* ── Sidebar ──
+     Slightly darker than background — distinct but not jarring. */
+  --sidebar:                    oklch(0.970 0.005 75);
+  --sidebar-foreground:         oklch(0.200 0.010 70);
+  --sidebar-primary:            oklch(0.520 0.130 60);
+  --sidebar-primary-foreground: oklch(0.990 0.003 75);
+  --sidebar-accent:             oklch(0.930 0.007 75);
+  --sidebar-accent-foreground:  oklch(0.200 0.010 70);
+  --sidebar-border:             oklch(0.880 0.006 75);
+  --sidebar-ring:               oklch(0.600 0.130 65);
+
+  /* ── Charts ──
+     Warm-anchored sequential palette. Varied hues, balanced lightness.
+     Amber → Teal → Rose → Sage → Ochre */
+  --chart-1: oklch(0.680 0.140 68);   /* amber    */
+  --chart-2: oklch(0.620 0.120 190);  /* teal     */
+  --chart-3: oklch(0.620 0.160 15);   /* rose     */
+  --chart-4: oklch(0.620 0.120 145);  /* sage     */
+  --chart-5: oklch(0.700 0.100 90);   /* ochre    */
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DARK MODE TOKENS
+   ─────────────────────────────────────────────────────────────────────────────
+   Background: deep warm charcoal — avoids OLED harshness of pure black.
+   Primary: brighter amber (L=0.73) — compensates for dark adaptation.
+   ───────────────────────────────────────────────────────────────────────────── */
+.dark {
+  --background: oklch(0.140 0.010 70);  /* deep warm charcoal        */
+  --foreground: oklch(0.950 0.005 75);  /* warm near-white           */
+
+  --card:             oklch(0.185 0.010 70);  /* elevated surface    */
+  --card-foreground:  oklch(0.950 0.005 75);
+
+  --popover:          oklch(0.185 0.010 70);
+  --popover-foreground: oklch(0.950 0.005 75);
+
+  /* Primary in dark: more luminous amber for legibility on dark bg.
+     L=0.73 reads clearly; dark foreground ensures contrast ✓ */
+  --primary:            oklch(0.730 0.140 68);
+  --primary-foreground: oklch(0.130 0.010 70);
+
+  --secondary:            oklch(0.220 0.010 70);
+  --secondary-foreground: oklch(0.920 0.005 75);
+
+  --muted:            oklch(0.220 0.010 70);
+  --muted-foreground: oklch(0.580 0.008 72);
+
+  --accent:            oklch(0.220 0.010 70);
+  --accent-foreground: oklch(0.920 0.005 75);
+
+  --destructive:        oklch(0.650 0.220 25);
+
+  --success:            oklch(0.650 0.140 145);
+  --success-foreground: oklch(0.130 0.010 70);
+
+  --warning:            oklch(0.780 0.140 75);
+  --warning-foreground: oklch(0.130 0.010 70);
+
+  --border: oklch(1 0 0 / 10%);
+  --input:  oklch(1 0 0 / 12%);
+  --ring:   oklch(0.730 0.140 68);
+
+  --sidebar:                    oklch(0.120 0.010 70);
+  --sidebar-foreground:         oklch(0.920 0.005 75);
+  --sidebar-primary:            oklch(0.730 0.140 68);
+  --sidebar-primary-foreground: oklch(0.130 0.010 70);
+  --sidebar-accent:             oklch(0.190 0.010 70);
+  --sidebar-accent-foreground:  oklch(0.920 0.005 75);
+  --sidebar-border:             oklch(1 0 0 / 8%);
+  --sidebar-ring:               oklch(0.730 0.140 68);
+
+  --chart-1: oklch(0.750 0.140 68);
+  --chart-2: oklch(0.680 0.130 190);
+  --chart-3: oklch(0.680 0.170 15);
+  --chart-4: oklch(0.680 0.130 145);
+  --chart-5: oklch(0.750 0.110 90);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   KEYFRAMES
+   ───────────────────────────────────────────────────────────────────────────── */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0);     }
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0);     }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ANIMATION DELAY UTILITIES
+   Enables staggered entrance animations. Use alongside animate-fade-up.
+   ───────────────────────────────────────────────────────────────────────────── */
+@layer utilities {
+  .animation-delay-75  { animation-delay: 75ms;  }
+  .animation-delay-150 { animation-delay: 150ms; }
+  .animation-delay-225 { animation-delay: 225ms; }
+  .animation-delay-300 { animation-delay: 300ms; }
+  .animation-delay-375 { animation-delay: 375ms; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   BASE LAYER
+   ───────────────────────────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  html {
+    @apply font-sans;
+  }
+}

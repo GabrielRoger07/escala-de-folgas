@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Login from './pages/Login'
 import Home from './pages/Home'
-import Wrapper from './auth/Wrapper'
+import Setores from './pages/setores'
+import ProtectedRoute from './auth/ProtectedRoute'
 
 function App() {
 
@@ -10,7 +11,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path='/' element={<Login />}/>
-          <Route path='/home' element={<Wrapper><Home /></Wrapper>}/>
+          <Route path='/home' element={<ProtectedRoute><Home /></ProtectedRoute>}/>
+          <Route path='/setores' element={<ProtectedRoute><Setores /></ProtectedRoute>}/>
         </Routes>
       </BrowserRouter>
     </div>
