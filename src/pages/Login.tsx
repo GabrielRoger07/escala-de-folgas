@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Wheat, Loader2 } from "lucide-react"
 import { supabase } from "@/config/supabaseClient"
@@ -6,32 +6,39 @@ import { Button } from "@/components/ui/button"
 import { FormField } from "@/components/layout/FormField"
 import { SectionDivider } from "@/components/layout/SectionDivider"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/auth/useAuth"
 
 type MessageState = { text: string; type: "error" | "success" | "" }
 
 const Login = () => {
+  const { session, loading } = useAuth()
+  const navigate = useNavigate()
+
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [message, setMessage] = useState<MessageState>({ text: "", type: "" })
   const [isLoading, setIsLoading] = useState(false)
-  const navigate = useNavigate()
+
+  useEffect(() => {
+    if(!loading && session) {
+      navigate("/home", { replace: true })
+    }
+  }, [loading, session, navigate])
 
   const handleLogin = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
     setMessage({ text: "", type: "" })
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
     setIsLoading(false)
 
     if (error) {
       setMessage({ text: "E-mail ou senha incorretos", type: "error" })
       return
     }
-    if (data) {
-      setMessage({ text: "Acesso autorizado — redirecionando...", type: "success" })
-      setTimeout(() => navigate("/home"), 1000)
-    }
+
+    setMessage({ text: "Acesso autorizado!", type: "success" })
   }
 
   return (
