@@ -71,7 +71,6 @@ export type EscalaInsert = {
 }
 
 export type EscalaUpdate = {
-  id: string
   id_setor: string
   mes: number
   ano: number

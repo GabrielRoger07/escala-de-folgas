@@ -1,24 +1,6 @@
 import { Building2, Calendar, Pencil, Trash2, Users } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, formatDate, ANIMATION_DELAYS } from "@/lib/utils"
 import type { Setor } from "@/types/database"
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  })
-}
-
-const DELAY_CLASSES = [
-  "animation-delay-75",
-  "animation-delay-150",
-  "animation-delay-225",
-  "animation-delay-300",
-  "animation-delay-375",
-]
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -51,7 +33,7 @@ export function SetorCard({ setor, index, onEdit, onDelete }: SetorCardProps) {
       className={cn(
         "group animate-fade-up relative flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm",
         "transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5",
-        DELAY_CLASSES[index % DELAY_CLASSES.length]
+        ANIMATION_DELAYS[index % ANIMATION_DELAYS.length]
       )}
     >
       {/* Header */}

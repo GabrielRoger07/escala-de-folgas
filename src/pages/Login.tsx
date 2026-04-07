@@ -4,6 +4,7 @@ import { Wheat, Loader2 } from "lucide-react"
 import { supabase } from "@/config/supabaseClient"
 import { Button } from "@/components/ui/button"
 import { FormField } from "@/components/layout/FormField"
+import { SectionDivider } from "@/components/layout/SectionDivider"
 import { cn } from "@/lib/utils"
 
 type MessageState = { text: string; type: "error" | "success" | "" }
@@ -24,7 +25,7 @@ const Login = () => {
     setIsLoading(false)
 
     if (error) {
-      setMessage({ text: "E-mail ou senha incorretos.", type: "error" })
+      setMessage({ text: "E-mail ou senha incorretos", type: "error" })
       return
     }
     if (data) {
@@ -34,7 +35,7 @@ const Login = () => {
   }
 
   return (
-    <div className="dark relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-5">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-5">
 
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_85%_5%,oklch(0.73_0.14_68_/_0.09)_0%,transparent_100%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_55%_45%_at_10%_95%,oklch(0.62_0.12_50_/_0.07)_0%,transparent_100%)]" />
@@ -49,16 +50,12 @@ const Login = () => {
             <h1 className="text-[1.625rem] font-semibold tracking-tight text-foreground">
               Escala de Folgas
             </h1>
-            <p className="mt-1.5 text-[0.6875rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            <p className="mt-1.5 text-[0.6875rem] font-semibold uppercase tracking-[0.16em] text-foreground">
               Sistema de Gestão
             </p>
           </div>
 
-          <div className="mb-7 flex animate-fade-up items-center gap-3 animation-delay-150">
-            <div className="h-px flex-1 bg-border" />
-            <div className="h-1 w-1 rounded-full bg-border" />
-            <div className="h-px flex-1 bg-border" />
-          </div>
+          <SectionDivider className="mb-7 animate-fade-up animation-delay-150" />
 
           <form onSubmit={handleLogin} noValidate className="flex flex-col gap-4">
 

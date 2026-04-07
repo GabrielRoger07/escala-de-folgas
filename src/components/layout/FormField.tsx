@@ -12,7 +12,7 @@ export function FormField({ label, id, className, ...props }: FormFieldProps) {
     <div>
       <Label
         htmlFor={id}
-        className="mb-2 text-[0.6875rem] font-semibold uppercase tracking-[0.09em] text-muted-foreground"
+        className="mb-2 text-[0.6875rem] font-semibold uppercase tracking-[0.09em] text-foreground"
       >
         {label}
       </Label>

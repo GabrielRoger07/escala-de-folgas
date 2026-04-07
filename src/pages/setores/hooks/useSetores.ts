@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { supabase } from "@/config/supabaseClient"
+import { useFeedback } from "@/hooks/useFeedback"
 import type { Setor, SetorInsert } from "@/types/database"
 
 export type ModalState =
@@ -7,21 +8,12 @@ export type ModalState =
   | { open: true; mode: "create" }
   | { open: true; mode: "edit"; setor: Setor }
 
-export type FeedbackMessage = { text: string; type: "success" | "error" } | null
-
 export function useSetores() {
   const [setores, setSetores] = useState<Setor[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [modalState, setModalState] = useState<ModalState>({ open: false })
   const [deleteTarget, setDeleteTarget] = useState<Setor | null>(null)
-  const [feedback, setFeedback] = useState<FeedbackMessage>(null)
-
-  // ── Feedback ──────────────────────────────────────────────────────────────
-
-  const showFeedback = useCallback((text: string, type: "success" | "error") => {
-    setFeedback({ text, type })
-    setTimeout(() => setFeedback(null), 4000)
-  }, [])
+  const { feedback, showFeedback } = useFeedback()
 
   // ── Data ──────────────────────────────────────────────────────────────────
 
@@ -31,7 +23,7 @@ export function useSetores() {
       .from("setores")
       .select("*")
       .order("nome_setor", { ascending: true })
-    
+
     setIsLoading(false)
     if (error) {
       showFeedback("Erro ao carregar setores. Tente recarregar a página.", "error")
@@ -40,17 +32,14 @@ export function useSetores() {
     setSetores(data ?? [])
   }, [showFeedback])
 
-  useEffect(() => { 
-    const loadSetores = async () => {
-      await fetchSetores();
-    }
-    loadSetores() 
+  useEffect(() => {
+    const loadSetores = async () => { await fetchSetores() }
+    loadSetores()
   }, [fetchSetores])
 
   // ── Mutations ─────────────────────────────────────────────────────────────
 
   async function createSetor(payload: SetorInsert): Promise<boolean> {
-    console.log(payload)
     const { error } = await supabase.from("setores").insert(payload)
     if (error) { showFeedback("Erro ao criar setor. Tente novamente.", "error"); return false }
     showFeedback("Setor criado com sucesso.", "success")
