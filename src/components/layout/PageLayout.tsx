@@ -9,7 +9,7 @@ interface PageLayoutProps {
  * Wrapper de página padrão: dark mode, min-h-screen, gradientes decorativos e container centralizado.
  * Usado em todas as páginas internas (Setores, Funcionários, etc.).
  */
-export function PageLayout({ children, maxWidth = "max-w-4xl" }: PageLayoutProps) {
+export function PageLayout({ children, maxWidth = "max-w-7xl" }: PageLayoutProps) {
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-background">
 
@@ -18,7 +18,7 @@ export function PageLayout({ children, maxWidth = "max-w-4xl" }: PageLayoutProps
 
       <Navbar />
 
-      <div className={`relative z-10 mx-auto ${maxWidth} px-5 py-10`}>
+      <div className={`relative z-10 mx-auto ${maxWidth} px-6 py-10`}>
         {children}
       </div>
 

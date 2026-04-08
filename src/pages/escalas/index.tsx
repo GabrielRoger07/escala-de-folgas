@@ -285,7 +285,7 @@ export default function Escalas() {
   const allDone = totalSetores > 0 && setoresComEscala === totalSetores
 
   return (
-    <PageLayout maxWidth="max-w-4xl">
+    <PageLayout>
 
       <PageHeader
         icon={<CalendarDays size={22} className="text-primary" strokeWidth={1.5} />}
@@ -345,7 +345,7 @@ export default function Escalas() {
             </p>
           </div>
         ) : (
-          <div className="flex flex-col gap-2">
+          <div className="grid gap-2 xl:grid-cols-2">
             {currentMonthStatus.map((item, i) => (
               <SetorTile
                 key={item.setor.id}
@@ -370,7 +370,7 @@ export default function Escalas() {
             <div className="h-px flex-1 bg-border" />
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
             {monthGroups.map((group, i) => (
               <MonthListItem key={group.key} group={group} index={i} />
             ))}
@@ -385,7 +385,7 @@ export default function Escalas() {
             <Skeleton className="h-3 w-16" />
             <Separator className="flex-1" />
           </div>
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
             <EscalaCardSkeleton />
             <EscalaCardSkeleton />
             <EscalaCardSkeleton />

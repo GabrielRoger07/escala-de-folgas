@@ -39,7 +39,7 @@ const Navbar = () => {
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-sm">
-        <div className="mx-auto grid h-14 grid-cols-2 sm:grid-cols-3 items-center px-5">
+        <div className="mx-auto grid h-14 max-w-7xl grid-cols-2 sm:grid-cols-3 items-center px-6">
 
           <div onClick={() => navigate("/home")} className="flex items-center gap-2 text-sm font-semibold text-foreground justify-self-start cursor-pointer">
             <Wheat size={16} className="text-primary" strokeWidth={1.5} />

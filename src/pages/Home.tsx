@@ -235,7 +235,7 @@ const Home = () => {
   ]
 
   return (
-    <PageLayout maxWidth="max-w-5xl">
+    <PageLayout>
 
       {/* ── Greeting ── */}
       <div className="animate-fade-up mb-8">
@@ -257,7 +257,7 @@ const Home = () => {
       </div>
 
       {/* ── Main content ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_272px] gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_272px] xl:grid-cols-[1fr_360px] gap-5">
 
         {/* Escala status por setor */}
         <div className="animate-fade-up animation-delay-300 rounded-xl border border-border bg-card overflow-hidden">

@@ -132,7 +132,7 @@ export default function EscalaMes() {
 
   if (error) {
     return (
-      <PageLayout maxWidth="max-w-3xl">
+      <PageLayout>
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <CalendarDays size={24} className="mb-4 text-muted-foreground/40" strokeWidth={1.5} />
           <p className="text-sm font-semibold text-muted-foreground">
@@ -150,7 +150,7 @@ export default function EscalaMes() {
   }
 
   return (
-    <PageLayout maxWidth="max-w-3xl">
+    <PageLayout>
 
       {/* ── Back + Header ─────────────────────────────────────────────────── */}
       <div className="mb-8 animate-fade-up">
@@ -200,7 +200,7 @@ export default function EscalaMes() {
 
       {/* ── Lista ─────────────────────────────────────────────────────────── */}
       {isLoading ? (
-        <div className="flex flex-col gap-2">
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           <EscalaItemSkeleton />
           <EscalaItemSkeleton />
           <EscalaItemSkeleton />
@@ -222,7 +222,7 @@ export default function EscalaMes() {
           </button>
         </div>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {escalas.map((escala, i) => (
             <EscalaItem key={escala.id} escala={escala} index={i} />
           ))}
