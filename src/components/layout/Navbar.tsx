@@ -39,14 +39,14 @@ const Navbar = () => {
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-sm">
-        <div className="mx-auto grid h-14 grid-cols-3 items-center px-5">
+        <div className="mx-auto grid h-14 grid-cols-2 sm:grid-cols-3 items-center px-5">
 
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground justify-self-start">
             <Wheat size={16} className="text-primary" strokeWidth={1.5} />
             Escala de Folgas
           </div>
 
-          <nav className="hidden md:flex items-center gap-1 justify-self-center cursor-pointer">
+          <nav className="hidden sm:flex items-center gap-1 justify-self-center cursor-pointer">
             {navLinks.map(({ to, label }) => (
               <NavLink
                 key={to}
@@ -64,7 +64,7 @@ const Navbar = () => {
             ))}
           </nav>
 
-          <div className="flex items-center gap-1 justify-self-end">
+          <div className="hidden sm:flex items-center gap-1 justify-self-end">
             <Button
               variant="ghost"
               size="icon"
