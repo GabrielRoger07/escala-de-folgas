@@ -10,5 +10,5 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (loading) return <div>Loading...</div>
 
-  return session ? <>{children}</> : <Navigate to="/" replace />
+  return session ? <>{children}</> : <Navigate to="/login" replace />
 }

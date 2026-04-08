@@ -1,18 +1,21 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Wheat, Loader2 } from "lucide-react"
+import { Wheat, Loader2, Moon, Sun } from "lucide-react"
 import { supabase } from "@/config/supabaseClient"
 import { Button } from "@/components/ui/button"
 import { FormField } from "@/components/layout/FormField"
 import { SectionDivider } from "@/components/layout/SectionDivider"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/auth/useAuth"
+import { useTheme } from "@/hooks/useTheme"
 
 type MessageState = { text: string; type: "error" | "success" | "" }
 
 const Login = () => {
   const { session, loading } = useAuth()
   const navigate = useNavigate()
+
+  const { theme, toggle } = useTheme()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -43,6 +46,35 @@ const Login = () => {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-5">
+
+      <div className="absolute top-4 right-4 z-20">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggle}
+          aria-label={theme === "dark" ? "Mudar para modo claro" : "Mudar para modo escuro"}
+          className="h-8 w-8 text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
+        >
+          <span className="relative flex h-4 w-4 items-center justify-center">
+            <Moon
+              size={14}
+              className={`absolute transition-all duration-300 ${
+                theme === "dark"
+                  ? "rotate-0 scale-100 opacity-100"
+                  : "-rotate-90 scale-0 opacity-0"
+              }`}
+            />
+            <Sun
+              size={14}
+              className={`absolute transition-all duration-300 ${
+                theme === "dark"
+                  ? "rotate-90 scale-0 opacity-0"
+                  : "rotate-0 scale-100 opacity-100"
+              }`}
+            />
+          </span>
+        </Button>
+      </div>
 
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_85%_5%,oklch(0.73_0.14_68_/_0.09)_0%,transparent_100%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_55%_45%_at_10%_95%,oklch(0.62_0.12_50_/_0.07)_0%,transparent_100%)]" />

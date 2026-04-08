@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
 import Home from './pages/Home'
 import Setores from './pages/setores'
@@ -14,12 +14,13 @@ function App() {
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
-          <Route path='/' element={<Login />}/>
-          <Route path='/home' element={<ProtectedRoute><Home /></ProtectedRoute>}/>
-          <Route path='/setores' element={<ProtectedRoute><Setores /></ProtectedRoute>}/>
-          <Route path='/funcionarios' element={<ProtectedRoute><Funcionarios /></ProtectedRoute>}/>
-          <Route path='/escalas' element={<ProtectedRoute><Escalas /></ProtectedRoute>}/>
-          <Route path='/escalas/:id' element={<ProtectedRoute><EscalaDetail /></ProtectedRoute>}/>
+          <Route path='/login' element={<Login />} />
+          <Route path='/home' element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path='/setores' element={<ProtectedRoute><Setores /></ProtectedRoute>} />
+          <Route path='/funcionarios' element={<ProtectedRoute><Funcionarios /></ProtectedRoute>} />
+          <Route path='/escalas' element={<ProtectedRoute><Escalas /></ProtectedRoute>} />
+          <Route path='/escalas/:id' element={<ProtectedRoute><EscalaDetail /></ProtectedRoute>} />
+          <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
