@@ -8,6 +8,8 @@ import {
   Undo2,
   Users,
 } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
+import { EscalaStatusBadge } from "@/components/shared/StatusBadge"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { PageLayout } from "@/components/layout/PageLayout"
@@ -69,8 +71,8 @@ export default function EscalaDetail() {
             <div>
               {isLoading ? (
                 <div className="space-y-2">
-                  <div className="h-6 w-48 animate-pulse rounded bg-muted" />
-                  <div className="h-3 w-32 animate-pulse rounded bg-muted" />
+                  <Skeleton className="h-6 w-48" />
+                  <Skeleton className="h-3 w-32" />
                 </div>
               ) : escala ? (
                 <>
@@ -81,18 +83,7 @@ export default function EscalaDetail() {
                     <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                       {MONTH_NAMES[escala.mes - 1]} {escala.ano}
                     </p>
-                    {/* Status badge */}
-                    {isPublished ? (
-                      <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                        <span className="text-[0.6875rem] font-semibold text-emerald-400">Publicada</span>
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1.5 rounded-full border border-amber-500/25 bg-amber-500/10 px-2.5 py-0.5">
-                        <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-                        <span className="text-[0.6875rem] font-semibold text-amber-400">Rascunho</span>
-                      </span>
-                    )}
+                    <EscalaStatusBadge status={escala.status} />
                   </div>
                 </>
               ) : null}
@@ -237,7 +228,7 @@ export default function EscalaDetail() {
             <span className="text-[0.6875rem] text-muted-foreground">= trabalhando (ok)</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[0.6875rem] font-bold text-destructive">N</span>
+            <span className="text-[0.6875rem] font-bold text-amber-400">N</span>
             <span className="text-[0.6875rem] text-muted-foreground">= no mínimo (atenção)</span>
           </div>
           {isEditable && (

@@ -1,4 +1,8 @@
 import { Building2, Calendar, Pencil, Trash2, Users } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn, formatDate, ANIMATION_DELAYS } from "@/lib/utils"
 import type { Setor } from "@/types/database"
 
@@ -6,14 +10,20 @@ import type { Setor } from "@/types/database"
 
 export function SetorCardSkeleton() {
   return (
-    <div className="animate-pulse rounded-2xl border border-border bg-card p-6">
-      <div className="mb-4 h-5 w-2/3 rounded-lg bg-muted" />
-      <div className="mb-3 h-7 w-1/2 rounded-full bg-muted" />
-      <div className="mb-6 h-4 w-1/3 rounded bg-muted" />
-      <div className="flex justify-end gap-2">
-        <div className="h-8 w-8 rounded-lg bg-muted" />
-        <div className="h-8 w-8 rounded-lg bg-muted" />
+    <div className="rounded-2xl border border-border bg-card p-6">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-9 w-9 rounded-xl" />
+          <Skeleton className="h-5 w-36" />
+        </div>
+        <div className="flex gap-1">
+          <Skeleton className="h-8 w-8 rounded-lg" />
+          <Skeleton className="h-8 w-8 rounded-lg" />
+        </div>
       </div>
+      <Separator className="mb-4" />
+      <Skeleton className="mb-6 h-7 w-40 rounded-full" />
+      <Skeleton className="h-3 w-32" />
     </div>
   )
 }
@@ -49,41 +59,51 @@ export function SetorCard({ setor, index, onEdit, onDelete }: SetorCardProps) {
 
         {/* Actions */}
         <div className="flex shrink-0 items-center gap-1 opacity-60 transition-opacity group-hover:opacity-100">
-          <button
-            onClick={() => onEdit(setor)}
-            className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground",
-              "transition-all duration-150 hover:border-border hover:bg-accent hover:text-foreground"
-            )}
-            aria-label="Editar setor"
-          >
-            <Pencil size={14} strokeWidth={1.75} />
-          </button>
-          <button
-            onClick={() => onDelete(setor)}
-            className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground",
-              "transition-all duration-150 hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
-            )}
-            aria-label="Excluir setor"
-          >
-            <Trash2 size={14} strokeWidth={1.75} />
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => onEdit(setor)}
+                className={cn(
+                  "flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground",
+                  "transition-all duration-150 hover:border-border hover:bg-accent hover:text-foreground"
+                )}
+                aria-label="Editar setor"
+              >
+                <Pencil size={14} strokeWidth={1.75} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>Editar</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => onDelete(setor)}
+                className={cn(
+                  "flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground",
+                  "transition-all duration-150 hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                )}
+                aria-label="Excluir setor"
+              >
+                <Trash2 size={14} strokeWidth={1.75} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>Excluir</TooltipContent>
+          </Tooltip>
         </div>
       </div>
 
-      {/* Divider */}
-      <div className="h-px bg-border" />
+      <Separator />
 
-      {/* Badge */}
+      {/* Badge mínimo */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1">
-          <Users size={12} className="text-primary" strokeWidth={2} />
-          <span className="text-[0.6875rem] font-semibold text-primary">
-            Mín. {setor.minimo_por_dia}{" "}
-            {setor.minimo_por_dia === 1 ? "funcionário" : "funcionários"}/dia
-          </span>
-        </div>
+        <Badge
+          variant="outline"
+          className="gap-1.5 rounded-full border-primary/20 bg-primary/10 px-3 py-1 text-[0.6875rem] text-primary hover:bg-primary/10"
+        >
+          <Users size={12} strokeWidth={2} />
+          Mín. {setor.minimo_por_dia}{" "}
+          {setor.minimo_por_dia === 1 ? "funcionário" : "funcionários"}/dia
+        </Badge>
       </div>
 
       {/* Footer */}

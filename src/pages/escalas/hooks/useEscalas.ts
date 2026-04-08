@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { supabase } from "@/config/supabaseClient"
 import { useFeedback } from "@/hooks/useFeedback"
-import type { DiaSemana, EscalaInsert, EscalaUpdate } from "@/types/database"
+import type { DiaSemana, EscalaInsert, EscalaUpdate, Setor } from "@/types/database"
 
 export type EscalaWithSetor = {
   id: string
@@ -16,55 +16,99 @@ export type EscalaWithSetor = {
 
 export type ModalState =
   | { open: false }
-  | { open: true; mode: "create" }
+  | { open: true; mode: "create"; presetSetorId?: string }
   | { open: true; mode: "edit"; escala: EscalaWithSetor }
 
+export type SetorMesStatus = {
+  setor: Setor
+  escala: EscalaWithSetor | null
+}
+
+export type MonthGroup = {
+  mes: number
+  ano: number
+  key: string
+  label: string
+  escalas: EscalaWithSetor[]
+}
+
+const MONTH_NAMES = [
+  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
+]
+
 export function useEscalas() {
-  const [escalas, setEscalas] = useState<EscalaWithSetor[]>([])
+  const now = new Date()
+  const currentMonth = now.getMonth() + 1
+  const currentYear = now.getFullYear()
+
+  const [allEscalas, setAllEscalas] = useState<EscalaWithSetor[]>([])
+  const [setores, setSetores] = useState<Setor[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [modalState, setModalState] = useState<ModalState>({ open: false })
   const [deleteTarget, setDeleteTarget] = useState<EscalaWithSetor | null>(null)
-  const [filterSetor, setFilterSetor] = useState("all")
-  const [filterStatus, setFilterStatus] = useState("all")
   const { feedback, showFeedback } = useFeedback()
 
   // ── Data ──────────────────────────────────────────────────────────────────
 
-  const fetchEscalas = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     setIsLoading(true)
-    const { data, error } = await supabase
-      .from("escalas")
-      .select("*, setores(nome_setor)")
-      .order("ano", { ascending: false })
-      .order("mes", { ascending: false })
+    const [escalasRes, setoresRes] = await Promise.all([
+      supabase
+        .from("escalas")
+        .select("*, setores(nome_setor)")
+        .order("ano", { ascending: false })
+        .order("mes", { ascending: false }),
+      supabase
+        .from("setores")
+        .select("*")
+        .order("nome_setor", { ascending: true }),
+    ])
 
     setIsLoading(false)
-    if (error) {
+    if (escalasRes.error) {
       showFeedback("Erro ao carregar escalas. Tente recarregar a página.", "error")
       return
     }
-    setEscalas((data ?? []) as EscalaWithSetor[])
+    setAllEscalas((escalasRes.data ?? []) as EscalaWithSetor[])
+    setSetores((setoresRes.data ?? []) as Setor[])
   }, [showFeedback])
 
   useEffect(() => {
-    const load = async () => { await fetchEscalas() }
-    load()
-  }, [fetchEscalas])
+    fetchData()
+  }, [fetchData])
 
   // ── Derived ───────────────────────────────────────────────────────────────
 
-  const filteredEscalas = escalas.filter((e) => {
-    if (filterSetor !== "all" && e.id_setor !== filterSetor) return false
-    if (filterStatus !== "all" && e.status !== filterStatus) return false
-    return true
-  })
+  // Status de cada setor no mês atual
+  const currentMonthStatus: SetorMesStatus[] = setores.map((setor) => ({
+    setor,
+    escala: allEscalas.find(
+      (e) => e.id_setor === setor.id && e.mes === currentMonth && e.ano === currentYear
+    ) ?? null,
+  }))
 
-  // Unique setores from loaded escalas for the filter dropdown
-  const setorFilterOptions = Array.from(
-    new Map(escalas.map((e) => [e.id_setor, e.setores.nome_setor])).entries()
+  // Escalas de meses anteriores agrupadas por mês/ano
+  const historicalEscalas = allEscalas.filter(
+    (e) => !(e.mes === currentMonth && e.ano === currentYear)
   )
-    .map(([id, nome]) => ({ value: id, label: nome }))
-    .sort((a, b) => a.label.localeCompare(b.label))
+
+  const monthGroups: MonthGroup[] = []
+  for (const escala of historicalEscalas) {
+    const key = `${escala.ano}-${String(escala.mes).padStart(2, "0")}`
+    const existing = monthGroups.find((g) => g.key === key)
+    if (existing) {
+      existing.escalas.push(escala)
+    } else {
+      monthGroups.push({
+        mes: escala.mes,
+        ano: escala.ano,
+        key,
+        label: `${MONTH_NAMES[escala.mes - 1]} ${escala.ano}`,
+        escalas: [escala],
+      })
+    }
+  }
 
   // ── Mutations ─────────────────────────────────────────────────────────────
 
@@ -79,7 +123,7 @@ export function useEscalas() {
       return false
     }
     showFeedback("Escala criada com sucesso.", "success")
-    await fetchEscalas()
+    await fetchData()
     return true
   }
 
@@ -94,7 +138,7 @@ export function useEscalas() {
       return false
     }
     showFeedback("Escala atualizada com sucesso.", "success")
-    await fetchEscalas()
+    await fetchData()
     return true
   }
 
@@ -105,29 +149,31 @@ export function useEscalas() {
       return false
     }
     showFeedback("Escala excluída com sucesso.", "success")
-    await fetchEscalas()
+    await fetchData()
     return true
   }
 
   // ── Modal handlers ────────────────────────────────────────────────────────
 
-  function openCreate() { setModalState({ open: true, mode: "create" }) }
-  function openEdit(escala: EscalaWithSetor) { setModalState({ open: true, mode: "edit", escala }) }
+  function openCreate(presetSetorId?: string) {
+    setModalState({ open: true, mode: "create", presetSetorId })
+  }
+  function openEdit(escala: EscalaWithSetor) {
+    setModalState({ open: true, mode: "edit", escala })
+  }
   function closeModal() { setModalState({ open: false }) }
 
   return {
-    escalas: filteredEscalas,
-    totalEscalas: escalas.length,
     isLoading,
     feedback,
     modalState,
     deleteTarget,
     setDeleteTarget,
-    filterSetor,
-    setFilterSetor,
-    filterStatus,
-    setFilterStatus,
-    setorFilterOptions,
+    currentMonth,
+    currentYear,
+    currentMonthStatus,
+    monthGroups,
+    allEscalas,
     openCreate,
     openEdit,
     closeModal,

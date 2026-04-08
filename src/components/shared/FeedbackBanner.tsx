@@ -1,4 +1,5 @@
-import { cn } from "@/lib/utils"
+import { AlertCircle, CheckCircle2 } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import type { FeedbackMessage } from "@/hooks/useFeedback"
 
 interface FeedbackBannerProps {
@@ -12,16 +13,23 @@ interface FeedbackBannerProps {
 export function FeedbackBanner({ feedback }: FeedbackBannerProps) {
   if (!feedback) return null
 
+  const isSuccess = feedback.type === "success"
+
   return (
-    <div
-      className={cn(
-        "mb-6 animate-fade-in rounded-xl border px-4 py-3 text-sm leading-relaxed",
-        feedback.type === "success"
-          ? "border-success/30 bg-success/10 text-success"
-          : "border-destructive/30 bg-destructive/10 text-destructive"
-      )}
+    <Alert
+      className={
+        isSuccess
+          ? "mb-6 animate-fade-in border-success/30 bg-success/10 text-success [&>svg]:text-success"
+          : "mb-6 animate-fade-in border-destructive/30 bg-destructive/10 text-destructive [&>svg]:text-destructive"
+      }
     >
-      {feedback.text}
-    </div>
+      {isSuccess
+        ? <CheckCircle2 className="h-4 w-4" />
+        : <AlertCircle className="h-4 w-4" />
+      }
+      <AlertDescription className="text-sm leading-relaxed">
+        {feedback.text}
+      </AlertDescription>
+    </Alert>
   )
 }

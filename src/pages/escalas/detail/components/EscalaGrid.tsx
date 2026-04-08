@@ -181,7 +181,7 @@ export function EscalaGrid({
                       bloqueado
                         ? "text-muted-foreground/30"
                         : working <= minimo
-                        ? "text-destructive"
+                        ? "text-amber-400"
                         : "text-emerald-500",
                     )}
                   >

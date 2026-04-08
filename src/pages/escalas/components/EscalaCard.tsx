@@ -1,5 +1,9 @@
 import { ArrowRight, CalendarDays, Clock, Pencil, Trash2 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Separator } from "@/components/ui/separator"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { EscalaStatusBadge } from "@/components/shared/StatusBadge"
 import { cn, ANIMATION_DELAYS } from "@/lib/utils"
 import type { EscalaWithSetor } from "../hooks/useEscalas"
 
@@ -12,45 +16,27 @@ const MONTH_NAMES = [
 
 export function EscalaCardSkeleton() {
   return (
-    <div className="animate-pulse rounded-2xl border border-border bg-card p-6">
+    <div className="rounded-2xl border border-border bg-card p-6">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-muted" />
-          <div>
-            <div className="mb-1.5 h-4 w-32 rounded bg-muted" />
-            <div className="h-3 w-20 rounded bg-muted" />
+          <Skeleton className="h-9 w-9 rounded-xl" />
+          <div className="space-y-1.5">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-3 w-20" />
           </div>
         </div>
-        <div className="h-6 w-24 rounded-full bg-muted" />
+        <Skeleton className="h-6 w-24 rounded-full" />
       </div>
-      <div className="mb-4 h-px bg-muted" />
+      <Separator className="mb-4" />
       <div className="flex items-center justify-between">
-        <div className="h-3 w-20 rounded bg-muted" />
+        <Skeleton className="h-3 w-20" />
         <div className="flex gap-1">
-          <div className="h-8 w-8 rounded-lg bg-muted" />
-          <div className="h-8 w-24 rounded-lg bg-muted" />
+          <Skeleton className="h-8 w-8 rounded-lg" />
+          <Skeleton className="h-8 w-8 rounded-lg" />
+          <Skeleton className="h-8 w-24 rounded-lg" />
         </div>
       </div>
     </div>
-  )
-}
-
-// ─── Status badge ──────────────────────────────────────────────────────────────
-
-function StatusBadge({ status }: { status: "rascunho" | "publicada" }) {
-  if (status === "publicada") {
-    return (
-      <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1">
-        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-        <span className="text-[0.6875rem] font-semibold text-emerald-400">Publicada</span>
-      </span>
-    )
-  }
-  return (
-    <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-amber-500/25 bg-amber-500/10 px-3 py-1">
-      <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-      <span className="text-[0.6875rem] font-semibold text-amber-400">Rascunho</span>
-    </span>
   )
 }
 
@@ -90,11 +76,10 @@ export function EscalaCard({ escala, index, onEdit, onDelete }: EscalaCardProps)
           </div>
         </div>
 
-        <StatusBadge status={escala.status} />
+        <EscalaStatusBadge status={escala.status} />
       </div>
 
-      {/* Divider */}
-      <div className="h-px bg-border" />
+      <Separator />
 
       {/* Footer */}
       <div className="flex items-center justify-between">
@@ -106,27 +91,37 @@ export function EscalaCard({ escala, index, onEdit, onDelete }: EscalaCardProps)
         </div>
 
         <div className="flex items-center gap-1">
-          <button
-            onClick={() => onEdit(escala)}
-            className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground",
-              "opacity-60 transition-all duration-150 hover:border-border hover:bg-accent hover:text-foreground hover:opacity-100"
-            )}
-            aria-label="Editar escala"
-          >
-            <Pencil size={13} strokeWidth={1.75} />
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => onEdit(escala)}
+                className={cn(
+                  "flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground",
+                  "opacity-60 transition-all duration-150 hover:border-border hover:bg-accent hover:text-foreground hover:opacity-100"
+                )}
+                aria-label="Editar escala"
+              >
+                <Pencil size={13} strokeWidth={1.75} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>Editar</TooltipContent>
+          </Tooltip>
 
-          <button
-            onClick={() => onDelete(escala)}
-            className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground",
-              "opacity-60 transition-all duration-150 hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive hover:opacity-100"
-            )}
-            aria-label="Excluir escala"
-          >
-            <Trash2 size={13} strokeWidth={1.75} />
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => onDelete(escala)}
+                className={cn(
+                  "flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground",
+                  "opacity-60 transition-all duration-150 hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive hover:opacity-100"
+                )}
+                aria-label="Excluir escala"
+              >
+                <Trash2 size={13} strokeWidth={1.75} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>Excluir</TooltipContent>
+          </Tooltip>
 
           <button
             onClick={() => navigate(`/escalas/${escala.id}`)}

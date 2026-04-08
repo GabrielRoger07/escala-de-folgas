@@ -1,4 +1,9 @@
 import { Calendar, Pencil, Trash2, UserRound } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
+import { FuncionarioStatusBadge } from "@/components/shared/StatusBadge"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn, formatDate, ANIMATION_DELAYS } from "@/lib/utils"
 import type { FuncionarioComSetor } from "../hooks/useFuncionarios"
 
@@ -6,21 +11,21 @@ import type { FuncionarioComSetor } from "../hooks/useFuncionarios"
 
 export function FuncionarioCardSkeleton() {
   return (
-    <div className="animate-pulse rounded-2xl border border-border bg-card p-6">
+    <div className="rounded-2xl border border-border bg-card p-6">
       <div className="mb-4 flex items-center gap-3">
-        <div className="h-9 w-9 rounded-xl bg-muted" />
-        <div className="h-5 w-2/3 rounded-lg bg-muted" />
+        <Skeleton className="h-9 w-9 rounded-xl" />
+        <Skeleton className="h-5 w-2/3" />
       </div>
-      <div className="mb-4 h-px bg-muted" />
+      <Separator className="mb-4" />
       <div className="mb-6 flex gap-2">
-        <div className="h-6 w-24 rounded-full bg-muted" />
-        <div className="h-6 w-16 rounded-full bg-muted" />
+        <Skeleton className="h-6 w-24 rounded-full" />
+        <Skeleton className="h-6 w-16 rounded-full" />
       </div>
       <div className="flex justify-between">
-        <div className="h-4 w-1/3 rounded bg-muted" />
+        <Skeleton className="h-4 w-1/3" />
         <div className="flex gap-2">
-          <div className="h-8 w-8 rounded-lg bg-muted" />
-          <div className="h-8 w-8 rounded-lg bg-muted" />
+          <Skeleton className="h-8 w-8 rounded-lg" />
+          <Skeleton className="h-8 w-8 rounded-lg" />
         </div>
       </div>
     </div>
@@ -70,57 +75,47 @@ export function FuncionarioCard({ funcionario, index, onEdit, onDelete }: Funcio
 
         {/* Actions */}
         <div className="flex shrink-0 items-center gap-1 opacity-60 transition-opacity group-hover:opacity-100">
-          <button
-            onClick={() => onEdit(funcionario)}
-            className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground",
-              "transition-all duration-150 hover:border-border hover:bg-accent hover:text-foreground"
-            )}
-            aria-label="Editar funcionário"
-          >
-            <Pencil size={14} strokeWidth={1.75} />
-          </button>
-          <button
-            onClick={() => onDelete(funcionario)}
-            className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground",
-              "transition-all duration-150 hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
-            )}
-            aria-label="Excluir funcionário"
-          >
-            <Trash2 size={14} strokeWidth={1.75} />
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => onEdit(funcionario)}
+                className={cn(
+                  "flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground",
+                  "transition-all duration-150 hover:border-border hover:bg-accent hover:text-foreground"
+                )}
+                aria-label="Editar funcionário"
+              >
+                <Pencil size={14} strokeWidth={1.75} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>Editar</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => onDelete(funcionario)}
+                className={cn(
+                  "flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground",
+                  "transition-all duration-150 hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                )}
+                aria-label="Excluir funcionário"
+              >
+                <Trash2 size={14} strokeWidth={1.75} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>Excluir</TooltipContent>
+          </Tooltip>
         </div>
       </div>
 
-      {/* Divider */}
-      <div className="h-px bg-border" />
+      <Separator />
 
       {/* Badges */}
       <div className="flex flex-wrap items-center gap-2">
-        <div className="flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-3 py-1">
-          <span className="text-[0.6875rem] font-semibold text-muted-foreground">
-            {nomeSetor}
-          </span>
-        </div>
-
-        <div className={cn(
-          "flex items-center gap-1.5 rounded-full border px-3 py-1",
-          funcionario.ativo
-            ? "border-success/25 bg-success/10"
-            : "border-border bg-muted/30"
-        )}>
-          <div className={cn(
-            "h-1.5 w-1.5 rounded-full",
-            funcionario.ativo ? "bg-success" : "bg-muted-foreground/40"
-          )} />
-          <span className={cn(
-            "text-[0.6875rem] font-semibold",
-            funcionario.ativo ? "text-success" : "text-muted-foreground/60"
-          )}>
-            {funcionario.ativo ? "Ativo" : "Inativo"}
-          </span>
-        </div>
+        <Badge variant="outline" className="rounded-full px-3 py-1 text-[0.6875rem] hover:bg-transparent">
+          {nomeSetor}
+        </Badge>
+        <FuncionarioStatusBadge ativo={funcionario.ativo} />
       </div>
 
       {/* Footer */}

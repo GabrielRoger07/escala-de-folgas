@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Wheat, Loader2, Moon, Sun } from "lucide-react"
+import { Wheat, Loader2, Moon, Sun, Eye, EyeOff } from "lucide-react"
 import { supabase } from "@/config/supabaseClient"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { FormField } from "@/components/layout/FormField"
 import { SectionDivider } from "@/components/layout/SectionDivider"
 import { cn } from "@/lib/utils"
@@ -19,6 +21,7 @@ const Login = () => {
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const [message, setMessage] = useState<MessageState>({ text: "", type: "" })
   const [isLoading, setIsLoading] = useState(false)
 
@@ -112,16 +115,49 @@ const Login = () => {
             </div>
 
             <div className="animate-fade-up animation-delay-300">
-              <FormField
-                id="password"
-                label="Senha"
-                type="password"
-                autoComplete="current-password"
-                required
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <Label
+                htmlFor="password"
+                className="mb-2 block text-[0.6875rem] font-semibold uppercase tracking-[0.09em] text-foreground"
+              >
+                Senha
+              </Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-11 px-3.5 pr-11"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                  className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-muted-foreground transition-colors duration-150 hover:text-foreground focus-visible:outline-none"
+                >
+                  <span className="relative flex h-4 w-4 items-center justify-center">
+                    <Eye
+                      size={15}
+                      className={`absolute transition-all duration-200 ${
+                        showPassword
+                          ? "scale-100 opacity-100"
+                          : "scale-0 opacity-0"
+                      }`}
+                    />
+                    <EyeOff
+                      size={15}
+                      className={`absolute transition-all duration-200 ${
+                        showPassword
+                          ? "scale-0 opacity-0"
+                          : "scale-100 opacity-100"
+                      }`}
+                    />
+                  </span>
+                </button>
+              </div>
             </div>
 
             <div className="mt-1 animate-fade-up animation-delay-375">

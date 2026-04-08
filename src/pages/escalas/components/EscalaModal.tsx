@@ -60,7 +60,8 @@ export function EscalaModal({ state, onClose, onCreate, onUpdate }: EscalaModalP
   const [setores, setSetores] = useState<Setor[]>([])
   const [isLoadingSetores, setIsLoadingSetores] = useState(true)
 
-  const [idSetor, setIdSetor] = useState(isEdit ? state.escala.id_setor : "")
+  const presetSetorId = !isEdit ? state.presetSetorId : undefined
+  const [idSetor, setIdSetor] = useState(isEdit ? state.escala.id_setor : (presetSetorId ?? ""))
   const [mes, setMes] = useState(isEdit ? String(state.escala.mes) : String(now.getMonth() + 1))
   const [ano, setAno] = useState(isEdit ? String(state.escala.ano) : String(now.getFullYear()))
   const [status, setStatus] = useState<"rascunho" | "publicada">(isEdit ? state.escala.status : "rascunho")
