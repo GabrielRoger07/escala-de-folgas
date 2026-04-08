@@ -9,6 +9,8 @@
 
 export type EscalaStatus = 'rascunho' | 'publicada'
 
+export type DiaSemana = 'seg' | 'ter' | 'qua' | 'qui' | 'sex' | 'sab'
+
 // ── Setor ────────────────────────────────────────────────────────────────────
 
 export type Setor = {
@@ -60,6 +62,7 @@ export type Escala = {
   mes: number
   ano: number
   status: EscalaStatus
+  dias_bloqueados: DiaSemana[]
   created_at: string
 }
 
@@ -68,6 +71,7 @@ export type EscalaInsert = {
   mes: number
   ano: number
   status?: EscalaStatus
+  dias_bloqueados?: DiaSemana[]
 }
 
 export type EscalaUpdate = {
@@ -75,6 +79,7 @@ export type EscalaUpdate = {
   mes: number
   ano: number
   status: EscalaStatus
+  dias_bloqueados: DiaSemana[]
 }
 
 // ── Folga ─────────────────────────────────────────────────────────────────────

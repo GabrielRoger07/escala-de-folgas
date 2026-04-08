@@ -22,34 +22,32 @@ const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-sm">
-      <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-5">
+      <div className="mx-auto grid h-14 max-w-4xl grid-cols-3 items-center px-5">
 
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <Wheat size={16} className="text-primary" strokeWidth={1.5} />
-            Escala de Folgas
-          </div>
-
-          <nav className="flex items-center gap-1">
-            {navLinks.map(({ to, label }) => (
-              <NavLink
-                key={to}
-                to={to}
-                className={({ isActive }) =>
-                  `rounded-md px-3 py-1.5 text-xs font-medium uppercase tracking-[0.06em] transition-colors ${
-                    isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  }`
-                }
-              >
-                {label}
-              </NavLink>
-            ))}
-          </nav>
+        <div className="flex items-center gap-2 text-sm font-semibold text-foreground justify-self-start">
+          <Wheat size={16} className="text-primary" strokeWidth={1.5} />
+          Escala de Folgas
         </div>
 
-        <div className="flex items-center gap-1">
+        <nav className="hidden md:flex items-center gap-1 justify-self-center">
+          {navLinks.map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `rounded-md px-3 py-1.5 text-xs font-medium uppercase tracking-[0.06em] transition-colors ${
+                  isActive
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`
+              }
+            >
+              {label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="flex items-center gap-1 justify-self-end">
           <Button
             variant="ghost"
             size="icon"

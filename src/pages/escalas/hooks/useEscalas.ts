@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { supabase } from "@/config/supabaseClient"
 import { useFeedback } from "@/hooks/useFeedback"
-import type { EscalaInsert, EscalaUpdate } from "@/types/database"
+import type { DiaSemana, EscalaInsert, EscalaUpdate } from "@/types/database"
 
 export type EscalaWithSetor = {
   id: string
@@ -9,6 +9,7 @@ export type EscalaWithSetor = {
   mes: number
   ano: number
   status: "rascunho" | "publicada"
+  dias_bloqueados: DiaSemana[]
   created_at: string
   setores: { nome_setor: string }
 }

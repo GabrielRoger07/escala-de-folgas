@@ -5,7 +5,8 @@ import { SelectField } from "@/components/layout/SelectField"
 import { ModalBase } from "@/components/shared/ModalBase"
 import { SectionDivider } from "@/components/layout/SectionDivider"
 import { supabase } from "@/config/supabaseClient"
-import type { EscalaInsert, EscalaUpdate, Setor } from "@/types/database"
+import { cn } from "@/lib/utils"
+import type { DiaSemana, EscalaInsert, EscalaUpdate, Setor } from "@/types/database"
 import type { ModalState } from "../hooks/useEscalas"
 
 const MONTHS = [
@@ -26,6 +27,15 @@ const MONTHS = [
 const STATUS_OPTIONS = [
   { value: "rascunho",  label: "Rascunho"  },
   { value: "publicada", label: "Publicada" },
+]
+
+const DIAS: { value: DiaSemana; label: string }[] = [
+  { value: "seg", label: "Seg" },
+  { value: "ter", label: "Ter" },
+  { value: "qua", label: "Qua" },
+  { value: "qui", label: "Qui" },
+  { value: "sex", label: "Sex" },
+  { value: "sab", label: "Sáb" },
 ]
 
 function getYearOptions() {
@@ -54,6 +64,9 @@ export function EscalaModal({ state, onClose, onCreate, onUpdate }: EscalaModalP
   const [mes, setMes] = useState(isEdit ? String(state.escala.mes) : String(now.getMonth() + 1))
   const [ano, setAno] = useState(isEdit ? String(state.escala.ano) : String(now.getFullYear()))
   const [status, setStatus] = useState<"rascunho" | "publicada">(isEdit ? state.escala.status : "rascunho")
+  const [diasBloqueados, setDiasBloqueados] = useState<DiaSemana[]>(
+    isEdit ? state.escala.dias_bloqueados : []
+  )
   const [errors, setErrors] = useState<{ idSetor?: string }>({})
   const [isSaving, setIsSaving] = useState(false)
 
@@ -70,6 +83,12 @@ export function EscalaModal({ state, onClose, onCreate, onUpdate }: EscalaModalP
   }, [])
 
   const setorOptions = setores.map((s) => ({ value: s.id, label: s.nome_setor }))
+
+  function toggleDia(dia: DiaSemana) {
+    setDiasBloqueados((prev) =>
+      prev.includes(dia) ? prev.filter((d) => d !== dia) : [...prev, dia]
+    )
+  }
 
   function validate(): boolean {
     const next: typeof errors = {}
@@ -91,6 +110,7 @@ export function EscalaModal({ state, onClose, onCreate, onUpdate }: EscalaModalP
         mes: Number(mes),
         ano: Number(ano),
         status,
+        dias_bloqueados: diasBloqueados,
       }
       ok = await onUpdate(state.escala.id, payload)
     } else {
@@ -98,6 +118,7 @@ export function EscalaModal({ state, onClose, onCreate, onUpdate }: EscalaModalP
         id_setor: idSetor,
         mes: Number(mes),
         ano: Number(ano),
+        dias_bloqueados: diasBloqueados,
       }
       ok = await onCreate(payload)
     }
@@ -160,6 +181,36 @@ export function EscalaModal({ state, onClose, onCreate, onUpdate }: EscalaModalP
             onValueChange={setAno}
             options={getYearOptions()}
           />
+        </div>
+
+        {/* Dias bloqueados */}
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-semibold text-foreground">
+            Dias sem folga
+          </label>
+          <p className="text-[0.6875rem] text-muted-foreground">
+            Nestes dias nenhum funcionário poderá ter folga.
+          </p>
+          <div className="mt-1 flex gap-2">
+            {DIAS.map(({ value, label }) => {
+              const active = diasBloqueados.includes(value)
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => toggleDia(value)}
+                  className={cn(
+                    "flex h-9 w-full items-center justify-center rounded-lg border text-xs font-semibold transition-colors",
+                    active
+                      ? "border-primary/40 bg-primary/15 text-primary"
+                      : "border-border bg-background text-muted-foreground hover:border-border hover:bg-accent hover:text-foreground"
+                  )}
+                >
+                  {label}
+                </button>
+              )
+            })}
+          </div>
         </div>
 
         {isEdit && (
