@@ -9,12 +9,12 @@ import { cn } from "@/lib/utils"
 
 interface EscalaStatusBadgeProps {
   status: "publicada" | "rascunho" | null
-  /** Tamanho reduzido — padrão usa ícone de 10px, sm usa 9px */
+  /** Tamanho reduzido — padrão usa ícone de 12px, sm usa 10px */
   size?: "default" | "sm"
 }
 
 export function EscalaStatusBadge({ status, size = "default" }: EscalaStatusBadgeProps) {
-  const iconSize = size === "sm" ? 9 : 10
+  const iconSize = size === "sm" ? 10 : 12
 
   if (status === "publicada") {
     return (
@@ -23,7 +23,7 @@ export function EscalaStatusBadge({ status, size = "default" }: EscalaStatusBadg
         className={cn(
           "gap-1.5 rounded-full border-emerald-500/25 bg-emerald-500/10 text-emerald-400",
           "hover:bg-emerald-500/10", // neutraliza hover do Badge
-          size === "sm" ? "px-2 py-0.5 text-[0.5625rem]" : "px-2.5 py-1 text-[0.625rem]"
+          size === "sm" ? "px-2 py-0.5 text-[0.5625rem]" : "px-3 py-1.5 text-[0.6875rem]"
         )}
       >
         <CheckCircle2 size={iconSize} strokeWidth={2.5} />
@@ -39,7 +39,7 @@ export function EscalaStatusBadge({ status, size = "default" }: EscalaStatusBadg
         className={cn(
           "gap-1.5 rounded-full border-amber-500/25 bg-amber-500/10 text-amber-400",
           "hover:bg-amber-500/10",
-          size === "sm" ? "px-2 py-0.5 text-[0.5625rem]" : "px-2.5 py-1 text-[0.625rem]"
+          size === "sm" ? "px-2 py-0.5 text-[0.5625rem]" : "px-3 py-1.5 text-[0.6875rem]"
         )}
       >
         <CircleDashed size={iconSize} strokeWidth={2.5} />
@@ -55,7 +55,7 @@ export function EscalaStatusBadge({ status, size = "default" }: EscalaStatusBadg
       className={cn(
         "gap-1.5 rounded-full border-border bg-muted/50 text-muted-foreground",
         "hover:bg-muted/50",
-        size === "sm" ? "px-2 py-0.5 text-[0.5625rem]" : "px-2.5 py-1 text-[0.625rem]"
+        size === "sm" ? "px-2 py-0.5 text-[0.5625rem]" : "px-3 py-1.5 text-[0.6875rem]"
       )}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />

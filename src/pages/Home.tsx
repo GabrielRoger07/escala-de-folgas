@@ -70,7 +70,7 @@ function MetricCard({ icon: Icon, label, value, accentClass, delay }: MetricCard
           {label}
         </span>
         <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted/80">
-          <Icon size={13} className="text-muted-foreground" strokeWidth={1.75} />
+          <Icon size={15} className="text-muted-foreground" strokeWidth={1.75} />
         </div>
       </div>
 
@@ -121,7 +121,7 @@ function SetorEscalaRow({
         <EscalaStatusBadge status={item.escala?.status ?? null} size="sm" />
         {clickable && (
           <ChevronRight
-            size={13}
+            size={15}
             className="text-muted-foreground/40 transition-all group-hover:translate-x-0.5 group-hover:text-muted-foreground"
           />
         )}
@@ -155,7 +155,7 @@ function QuickAccessCard({
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 transition-colors group-hover:bg-primary/18">
-            <Icon size={14} className="text-primary" strokeWidth={1.75} />
+            <Icon size={16} className="text-primary" strokeWidth={1.75} />
           </div>
           <div>
             <p className="text-sm font-semibold text-foreground">{title}</p>
@@ -163,7 +163,7 @@ function QuickAccessCard({
           </div>
         </div>
         <ChevronRight
-          size={14}
+          size={16}
           className="shrink-0 text-muted-foreground/30 transition-all group-hover:translate-x-0.5 group-hover:text-primary/50"
         />
       </div>
@@ -282,7 +282,7 @@ const Home = () => {
               </div>
             ) : data?.setoresComEscala.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 text-center gap-2">
-                <CalendarDays size={28} className="text-muted-foreground/30" strokeWidth={1.5} />
+                <CalendarDays size={30} className="text-muted-foreground/30" strokeWidth={1.5} />
                 <p className="text-sm text-muted-foreground">Nenhum setor cadastrado</p>
               </div>
             ) : (

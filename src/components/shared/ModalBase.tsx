@@ -25,7 +25,7 @@ export function ModalBase({ onClose, children, maxWidth = "max-w-md" }: ModalBas
           className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground transition-all hover:border-border hover:bg-accent hover:text-foreground"
           aria-label="Fechar"
         >
-          <X size={14} strokeWidth={1.75} />
+          <X size={16} strokeWidth={1.75} />
         </button>
 
         {children}

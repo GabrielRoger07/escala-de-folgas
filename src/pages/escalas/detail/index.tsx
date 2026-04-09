@@ -58,7 +58,7 @@ export default function EscalaDetail() {
           onClick={() => navigate("/escalas")}
           className="mb-5 flex items-center gap-1.5 text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-muted-foreground transition-colors hover:text-foreground"
         >
-          <ArrowLeft size={13} strokeWidth={2.5} />
+          <ArrowLeft size={15} strokeWidth={2.5} />
           Voltar para escalas
         </button>
 
@@ -66,7 +66,7 @@ export default function EscalaDetail() {
           {/* Title */}
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-primary/25 bg-primary/10">
-              <CalendarDays size={20} className="text-primary" strokeWidth={1.5} />
+              <CalendarDays size={22} className="text-primary" strokeWidth={1.5} />
             </div>
             <div>
               {isLoading ? (
@@ -103,9 +103,9 @@ export default function EscalaDetail() {
                       disabled={isGenerating}
                     >
                       {isGenerating ? (
-                        <Loader2 size={13} className="animate-spin" />
+                        <Loader2 size={15} className="animate-spin" />
                       ) : (
-                        <RefreshCw size={13} strokeWidth={2.5} />
+                        <RefreshCw size={15} strokeWidth={2.5} />
                       )}
                       Regenerar
                     </Button>
@@ -116,9 +116,9 @@ export default function EscalaDetail() {
                       disabled={isGenerating || funcionarios.length === 0}
                     >
                       {isGenerating ? (
-                        <Loader2 size={13} className="animate-spin" />
+                        <Loader2 size={15} className="animate-spin" />
                       ) : (
-                        <Sparkles size={13} strokeWidth={2.5} />
+                        <Sparkles size={15} strokeWidth={2.5} />
                       )}
                       Gerar escala
                     </Button>
@@ -130,9 +130,9 @@ export default function EscalaDetail() {
                     disabled={isPublishing}
                   >
                     {isPublishing ? (
-                      <Loader2 size={13} className="animate-spin" />
+                      <Loader2 size={15} className="animate-spin" />
                     ) : (
-                      <Send size={13} strokeWidth={2.5} />
+                      <Send size={15} strokeWidth={2.5} />
                     )}
                     Publicar
                   </Button>
@@ -147,9 +147,9 @@ export default function EscalaDetail() {
                   disabled={isPublishing}
                 >
                   {isPublishing ? (
-                    <Loader2 size={13} className="animate-spin" />
+                    <Loader2 size={15} className="animate-spin" />
                   ) : (
-                    <Undo2 size={13} strokeWidth={2.5} />
+                    <Undo2 size={15} strokeWidth={2.5} />
                   )}
                   Reverter para rascunho
                 </Button>
@@ -167,7 +167,7 @@ export default function EscalaDetail() {
       {!isLoading && escala && (
         <div className="mb-6 flex animate-fade-up flex-wrap items-center gap-4 animation-delay-150">
           <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5">
-            <Users size={14} className="text-muted-foreground" strokeWidth={1.75} />
+            <Users size={16} className="text-muted-foreground" strokeWidth={1.75} />
             <span className="text-xs font-semibold text-foreground">
               {funcionarios.length}
             </span>
@@ -176,7 +176,7 @@ export default function EscalaDetail() {
             </span>
           </div>
           <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5">
-            <CalendarDays size={14} className="text-muted-foreground" strokeWidth={1.75} />
+            <CalendarDays size={16} className="text-muted-foreground" strokeWidth={1.75} />
             <span className="text-xs font-semibold text-foreground">{days.length}</span>
             <span className="text-xs text-muted-foreground">dias no mês</span>
           </div>
@@ -244,7 +244,7 @@ export default function EscalaDetail() {
         <ModalBase onClose={() => setShowRegenerateConfirm(false)} maxWidth="max-w-sm">
           <div className="mb-5 flex justify-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-500/10">
-              <RefreshCw size={20} className="text-amber-500" strokeWidth={1.5} />
+              <RefreshCw size={22} className="text-amber-500" strokeWidth={1.5} />
             </div>
           </div>
           <div className="mb-7 text-center">
@@ -272,9 +272,9 @@ export default function EscalaDetail() {
               disabled={isGenerating}
             >
               {isGenerating ? (
-                <Loader2 size={13} className="animate-spin" />
+                <Loader2 size={15} className="animate-spin" />
               ) : (
-                <RefreshCw size={13} strokeWidth={2.5} />
+                <RefreshCw size={15} strokeWidth={2.5} />
               )}
               Regenerar
             </Button>

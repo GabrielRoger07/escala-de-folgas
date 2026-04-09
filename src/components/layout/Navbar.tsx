@@ -40,10 +40,10 @@ const Navbar = () => {
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-sm">
-        <div className="mx-auto grid h-14 max-w-7xl grid-cols-2 sm:grid-cols-3 items-center px-6">
+        <div className="mx-auto grid h-14 grid-cols-2 sm:grid-cols-3 items-center px-6">
 
           <div onClick={() => navigate("/home")} className="flex items-center gap-2 text-sm font-semibold text-foreground justify-self-start cursor-pointer">
-            <Wheat size={16} className="text-primary" strokeWidth={1.5} />
+            <Wheat size={18} className="text-primary" strokeWidth={1.5} />
             Escala de Folgas
           </div>
 
@@ -75,7 +75,7 @@ const Navbar = () => {
             >
               <span className="relative flex h-4 w-4 items-center justify-center">
                 <Moon
-                  size={14}
+                  size={16}
                   className={`absolute transition-all duration-300 ${
                     theme === "dark"
                       ? "rotate-0 scale-100 opacity-100"
@@ -83,7 +83,7 @@ const Navbar = () => {
                   }`}
                 />
                 <Sun
-                  size={14}
+                  size={16}
                   className={`absolute transition-all duration-300 ${
                     theme === "dark"
                       ? "rotate-90 scale-0 opacity-0"
@@ -99,7 +99,7 @@ const Navbar = () => {
               onClick={() => setShowLogoutDialog(true)}
               className="h-8 gap-2 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
             >
-              <LogOut size={14} />
+              <LogOut size={16} />
               Sair
             </Button>
           </div>
@@ -115,7 +115,7 @@ const Navbar = () => {
             >
               <span className="relative flex h-4 w-4 items-center justify-center">
                 <Moon
-                  size={14}
+                  size={16}
                   className={`absolute transition-all duration-300 ${
                     theme === "dark"
                       ? "rotate-0 scale-100 opacity-100"
@@ -123,7 +123,7 @@ const Navbar = () => {
                   }`}
                 />
                 <Sun
-                  size={14}
+                  size={16}
                   className={`absolute transition-all duration-300 ${
                     theme === "dark"
                       ? "rotate-90 scale-0 opacity-0"
@@ -139,7 +139,7 @@ const Navbar = () => {
               aria-label="Abrir menu"
               className="h-8 w-8 text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
             >
-              {menuOpen ? <X size={16} /> : <Menu size={16} />}
+              {menuOpen ? <X size={18} /> : <Menu size={18} />}
             </Button>
           </div>
 
@@ -171,7 +171,7 @@ const Navbar = () => {
                 onClick={() => { setMenuOpen(false); setShowLogoutDialog(true) }}
                 className="h-8 gap-2 text-xs text-muted-foreground hover:text-foreground cursor-pointer px-3"
               >
-                <LogOut size={14} />
+                <LogOut size={16} />
                 Sair
               </Button>
             </div>
@@ -187,7 +187,7 @@ const Navbar = () => {
               <span className="absolute h-16 w-16 rounded-full bg-destructive/8 animate-ping [animation-duration:2s]" />
               <span className="absolute h-12 w-12 rounded-full bg-destructive/12" />
               <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10 ring-1 ring-destructive/20">
-                <LogOut size={18} className="text-destructive translate-x-0.5" />
+                <LogOut size={20} className="text-destructive translate-x-0.5" />
               </div>
             </div>
           </div>
@@ -215,7 +215,7 @@ const Navbar = () => {
                 </>
               ) : (
                 <>
-                  <LogOut size={13} />
+                  <LogOut size={15} />
                   Confirmar saída
                 </>
               )}

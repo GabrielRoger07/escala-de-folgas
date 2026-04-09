@@ -111,15 +111,18 @@ async function fetchPrevConsecutive(
 //
 // Regra: nenhum funcionário pode trabalhar mais de 6 dias consecutivos.
 //
-// Estratégia dia a dia (mais urgente primeiro):
-//   - OBRIGATÓRIO (consecutivo ≥ 6): deve receber folga hoje.
-//   - URGENTE     (consecutivo = 5): recebe folga se ainda há capacidade
-//                                    (buffer de 1 dia, evita acúmulo de
-//                                    obrigatórios no dia seguinte).
+// Estratégia dia a dia (pico mínimo — máximo de funcionários por dia):
+//   - OBRIGATÓRIO (consecutivo ≥ 6): todos recebem folga hoje.
+//   - URGENTE     (consecutivo = 5): distribui os urgentes entre hoje e amanhã
+//                                    para minimizar o pico diário de folgas.
+//                                    Fórmula: ceil((urgentes − obrig_hoje) / 2)
+//                                    Exemplo: 4 urgentes → 2 hoje + 2 amanhã
+//                                    em vez de 1 hoje + 3 amanhã.
+//                 Mínimo garantido: max(0, urgentes − maxFolgasPerDay) para evitar
+//                                    infeasibilidade no dia seguinte.
 //   - Dias bloqueados: ninguém pode ter folga → todos incrementam o contador.
 //
-// Dentro de cada nível de urgência os funcionários são embaralhados para
-// distribuição justa.
+// Dentro de cada nível os funcionários são embaralhados (distribuição justa).
 //
 // Nota: se minimo_por_dia for muito alto em relação ao total de funcionários,
 // pode ser impossível satisfazer a regra de 6 dias para todos (infeasível).
@@ -141,11 +144,8 @@ function generateFolgas(
     consecutive[func.id] = prevConsecutive[func.id] ?? 0
   }
 
-  const folgasAssignedOnDay: Record<string, number> = {}
-
   for (const day of days) {
     const ds = toDateStr(day)
-    folgasAssignedOnDay[ds] = 0
 
     if (isDiaBloqueado(day, diasBloqueados)) {
       // No folgas allowed; everyone works → increment all counters
@@ -160,17 +160,38 @@ function generateFolgas(
       if (consecutive[func.id] >= 6) mandatory.push(func)
       else if (consecutive[func.id] >= 5) urgent.push(func)
     }
-    // Shuffle each tier independently
     mandatory.sort(() => Math.random() - 0.5)
     urgent.sort(() => Math.random() - 0.5)
 
     const assignedToday = new Set<string>()
 
-    for (const func of [...mandatory, ...urgent]) {
+    // Step 1: all mandatory employees must get a folga today
+    for (const func of mandatory) {
       if (assignedToday.size >= maxFolgasPerDay) break
       assignedToday.add(func.id)
-      result.push({ id_funcionario: func.id, id_escala: escala_id, data: ds })
-      folgasAssignedOnDay[ds]++
+    }
+
+    // Step 2: distribute urgent employees across today and tomorrow to minimise
+    // the peak folgas per day. Giving ceil((u - m) / 2) today and deferring the
+    // rest (who become mandatory tomorrow) equalises the load between the two days.
+    // We must give at least max(0, urgent.length - maxFolgasPerDay) to prevent
+    // tomorrow's mandatory count from exceeding capacity (infeasibility guard).
+    const slotsLeft = maxFolgasPerDay - assignedToday.size
+    if (slotsLeft > 0 && urgent.length > 0) {
+      const minUrgentNeeded = Math.max(0, urgent.length - maxFolgasPerDay)
+      const optimalUrgent = Math.max(0, Math.ceil((urgent.length - assignedToday.size) / 2))
+      const urgentToGive = Math.min(slotsLeft, Math.max(minUrgentNeeded, optimalUrgent))
+      let given = 0
+      for (const func of urgent) {
+        if (given >= urgentToGive) break
+        assignedToday.add(func.id)
+        given++
+      }
+    }
+
+    // Record folgas
+    for (const funcId of assignedToday) {
+      result.push({ id_funcionario: funcId, id_escala: escala_id, data: ds })
     }
 
     // Update counters

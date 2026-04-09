@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { PageLayout } from "@/components/layout/PageLayout"
 import { SectionDivider } from "@/components/layout/SectionDivider"
 import { EscalaStatusBadge } from "@/components/shared/StatusBadge"
-import { cn } from "@/lib/utils"
+import { cn, ANIMATION_DELAYS } from "@/lib/utils"
 import { useEscalaMes, type EscalaMesItem } from "./hooks/useEscalaMes"
 
 const MONTH_NAMES = [
@@ -24,14 +24,7 @@ const MONTH_NAMES = [
 
 function EscalaItem({ escala, index }: { escala: EscalaMesItem; index: number }) {
   const navigate = useNavigate()
-
-  const delays = [
-    "animation-delay-75",
-    "animation-delay-150",
-    "animation-delay-300",
-    "animation-delay-500",
-  ]
-  const delay = delays[index % delays.length]
+  const delay = ANIMATION_DELAYS[index % ANIMATION_DELAYS.length]
 
   return (
     <button
@@ -40,7 +33,7 @@ function EscalaItem({ escala, index }: { escala: EscalaMesItem; index: number })
         "animate-fade-up group w-full text-left",
         "flex items-center gap-4 rounded-xl border border-border bg-card px-5 py-4 shadow-sm",
         "transition-all duration-200 hover:-translate-y-px hover:border-primary/25 hover:shadow-lg hover:shadow-primary/5",
-        delay
+        delay,
       )}
     >
       {/* Ícone */}
@@ -53,7 +46,7 @@ function EscalaItem({ escala, index }: { escala: EscalaMesItem; index: number })
         )}
       >
         <CalendarDays
-          size={15}
+          size={17}
           strokeWidth={1.75}
           className={escala.status === "publicada" ? "text-emerald-400" : "text-amber-400"}
         />
@@ -74,7 +67,7 @@ function EscalaItem({ escala, index }: { escala: EscalaMesItem; index: number })
       <div className="flex shrink-0 items-center gap-3">
         <EscalaStatusBadge status={escala.status} />
         <ArrowRight
-          size={14}
+          size={16}
           strokeWidth={2}
           className="text-muted-foreground/40 transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-primary"
         />
@@ -85,15 +78,24 @@ function EscalaItem({ escala, index }: { escala: EscalaMesItem; index: number })
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
-function EscalaItemSkeleton() {
+function EscalaItemSkeleton({ index = 0 }: { index?: number }) {
+  const delay = ANIMATION_DELAYS[index % ANIMATION_DELAYS.length]
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-border bg-card px-5 py-4">
+    <div
+      className={cn(
+        "animate-fade-up flex items-center gap-4 rounded-xl border border-border bg-card px-5 py-4",
+        delay,
+      )}
+    >
       <Skeleton className="h-9 w-9 shrink-0 rounded-lg" />
-      <div className="flex-1 space-y-2">
-        <Skeleton className="h-4 w-40" />
+      <div className="min-w-0 flex-1 space-y-1">
+        <Skeleton className="h-[0.875rem] w-36" />
         <Skeleton className="h-3 w-28" />
       </div>
-      <Skeleton className="h-6 w-20 rounded-full" />
+      <div className="flex shrink-0 items-center gap-3">
+        <Skeleton className="h-[1.625rem] w-[5rem] rounded-full" />
+        <Skeleton className="h-4 w-4 rounded-sm opacity-50" />
+      </div>
     </div>
   )
 }
@@ -108,13 +110,13 @@ function StatusSummary({ escalas }: { escalas: EscalaMesItem[] }) {
     <div className="flex items-center gap-3">
       {publicadas > 0 && (
         <span className="flex items-center gap-1.5 text-[0.6875rem] font-semibold text-emerald-400">
-          <CheckCircle2 size={11} strokeWidth={2.5} />
+          <CheckCircle2 size={13} strokeWidth={2.5} />
           {publicadas} {publicadas === 1 ? "publicada" : "publicadas"}
         </span>
       )}
       {rascunhos > 0 && (
         <span className="flex items-center gap-1.5 text-[0.6875rem] font-semibold text-amber-400">
-          <CircleDashed size={11} strokeWidth={2.5} />
+          <CircleDashed size={13} strokeWidth={2.5} />
           {rascunhos} {rascunhos === 1 ? "rascunho" : "rascunhos"}
         </span>
       )}
@@ -134,7 +136,7 @@ export default function EscalaMes() {
     return (
       <PageLayout>
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <CalendarDays size={24} className="mb-4 text-muted-foreground/40" strokeWidth={1.5} />
+          <CalendarDays size={26} className="mb-4 text-muted-foreground/40" strokeWidth={1.5} />
           <p className="text-sm font-semibold text-muted-foreground">
             Mês inválido ou não encontrado.
           </p>
@@ -158,14 +160,14 @@ export default function EscalaMes() {
           onClick={() => navigate("/escalas")}
           className="mb-5 flex items-center gap-1.5 text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-muted-foreground transition-colors hover:text-foreground"
         >
-          <ArrowLeft size={13} strokeWidth={2.5} />
+          <ArrowLeft size={15} strokeWidth={2.5} />
           Voltar para escalas
         </button>
 
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-primary/25 bg-primary/10">
-              <CalendarDays size={20} className="text-primary" strokeWidth={1.5} />
+              <CalendarDays size={22} className="text-primary" strokeWidth={1.5} />
             </div>
             <div>
               <h1 className="text-2xl font-semibold tracking-tight text-foreground">
@@ -185,7 +187,7 @@ export default function EscalaMes() {
 
           {!isLoading && escalas.length > 0 && (
             <div className="flex items-center gap-1.5 rounded-xl border border-border bg-card px-4 py-2.5">
-              <Layers size={13} className="text-muted-foreground" strokeWidth={1.75} />
+              <Layers size={15} className="text-muted-foreground" strokeWidth={1.75} />
               <span className="text-xs font-bold text-foreground">{escalas.length}</span>
               <span className="text-xs text-muted-foreground">
                 {escalas.length === 1 ? "setor" : "setores"}
@@ -201,13 +203,13 @@ export default function EscalaMes() {
       {/* ── Lista ─────────────────────────────────────────────────────────── */}
       {isLoading ? (
         <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-          <EscalaItemSkeleton />
-          <EscalaItemSkeleton />
-          <EscalaItemSkeleton />
+          <EscalaItemSkeleton index={0} />
+          <EscalaItemSkeleton index={1} />
+          <EscalaItemSkeleton index={2} />
         </div>
       ) : escalas.length === 0 ? (
         <div className="animate-fade-up flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 py-16 text-center">
-          <CalendarDays size={22} className="mb-3 text-muted-foreground/40" strokeWidth={1.5} />
+          <CalendarDays size={24} className="mb-3 text-muted-foreground/40" strokeWidth={1.5} />
           <p className="text-sm font-semibold text-muted-foreground">
             Nenhuma escala em {monthName.toLowerCase()} {ano}
           </p>

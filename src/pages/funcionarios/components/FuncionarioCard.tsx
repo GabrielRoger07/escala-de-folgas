@@ -1,9 +1,9 @@
-import { Calendar, Pencil, Trash2, UserRound } from "lucide-react"
+import { Calendar, UserRound } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { FuncionarioStatusBadge } from "@/components/shared/StatusBadge"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { CardActions } from "@/components/shared/CardActions"
 import { cn, formatDate, ANIMATION_DELAYS } from "@/lib/utils"
 import type { FuncionarioComSetor } from "../hooks/useFuncionarios"
 
@@ -63,7 +63,7 @@ export function FuncionarioCard({ funcionario, index, onEdit, onDelete }: Funcio
               : "border-border bg-muted"
           )}>
             <UserRound
-              size={16}
+              size={18}
               className={funcionario.ativo ? "text-primary" : "text-muted-foreground"}
               strokeWidth={1.75}
             />
@@ -73,39 +73,7 @@ export function FuncionarioCard({ funcionario, index, onEdit, onDelete }: Funcio
           </h3>
         </div>
 
-        {/* Actions */}
-        <div className="flex shrink-0 items-center gap-1 opacity-60 transition-opacity group-hover:opacity-100">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={() => onEdit(funcionario)}
-                className={cn(
-                  "flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground",
-                  "transition-all duration-150 hover:border-border hover:bg-accent hover:text-foreground"
-                )}
-                aria-label="Editar funcionário"
-              >
-                <Pencil size={14} strokeWidth={1.75} />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>Editar</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={() => onDelete(funcionario)}
-                className={cn(
-                  "flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground",
-                  "transition-all duration-150 hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
-                )}
-                aria-label="Excluir funcionário"
-              >
-                <Trash2 size={14} strokeWidth={1.75} />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>Excluir</TooltipContent>
-          </Tooltip>
-        </div>
+        <CardActions onEdit={() => onEdit(funcionario)} onDelete={() => onDelete(funcionario)} />
       </div>
 
       <Separator />
@@ -120,7 +88,7 @@ export function FuncionarioCard({ funcionario, index, onEdit, onDelete }: Funcio
 
       {/* Footer */}
       <div className="flex items-center gap-1.5">
-        <Calendar size={11} className="text-muted-foreground/60" strokeWidth={1.75} />
+        <Calendar size={13} className="text-muted-foreground/60" strokeWidth={1.75} />
         <span className="text-[0.6875rem] text-muted-foreground/60">
           Cadastrado em {formatDate(funcionario.created_at)}
         </span>

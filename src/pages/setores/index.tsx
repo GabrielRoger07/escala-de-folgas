@@ -6,6 +6,7 @@ import { SectionDivider } from "@/components/layout/SectionDivider"
 import { FeedbackBanner } from "@/components/shared/FeedbackBanner"
 import { EmptyState } from "@/components/shared/EmptyState"
 import { DeleteConfirmModal } from "@/components/shared/DeleteConfirmModal"
+import { MobileFab } from "@/components/shared/MobileFab"
 import { SetorCard, SetorCardSkeleton } from "./components/SetorCard"
 import { SetorModal } from "./components/SetorModal"
 import { useSetores } from "./hooks/useSetores"
@@ -30,7 +31,7 @@ export default function Setores() {
     <PageLayout>
 
       <PageHeader
-        icon={<Wheat size={22} className="text-primary" strokeWidth={1.5} />}
+        icon={<Wheat size={24} className="text-primary" strokeWidth={1.5} />}
         title="Setores"
         subtitle="Gerencie os setores da padaria"
         action={
@@ -38,7 +39,7 @@ export default function Setores() {
             onClick={openCreate}
             className="h-10 gap-2 text-xs font-bold uppercase tracking-[0.06em] hover:-translate-y-px hover:shadow-lg hover:shadow-primary/20"
           >
-            <Plus size={14} strokeWidth={2.5} />
+            <Plus size={16} strokeWidth={2.5} />
             Novo Setor
           </Button>
         }
@@ -61,7 +62,7 @@ export default function Setores() {
       {/* Empty state */}
       {!isLoading && setores.length === 0 && (
         <EmptyState
-          icon={<Building2 size={24} className="text-muted-foreground" strokeWidth={1.5} />}
+          icon={<Building2 size={26} className="text-muted-foreground" strokeWidth={1.5} />}
           title="Nenhum setor cadastrado"
           description="Crie o primeiro setor para começar a organizar os funcionários."
           action={
@@ -69,7 +70,7 @@ export default function Setores() {
               onClick={openCreate}
               className="h-10 gap-2 text-xs font-bold uppercase tracking-[0.06em] hover:-translate-y-px hover:shadow-lg hover:shadow-primary/20"
             >
-              <Plus size={14} strokeWidth={2.5} />
+              <Plus size={16} strokeWidth={2.5} />
               Criar primeiro setor
             </Button>
           }
@@ -107,6 +108,8 @@ export default function Setores() {
           onUpdate={updateSetor}
         />
       )}
+
+      <MobileFab onClick={openCreate} label="Novo setor" />
 
       {/* Dialog de exclusão */}
       {deleteTarget && (

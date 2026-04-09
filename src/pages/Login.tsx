@@ -60,7 +60,7 @@ const Login = () => {
         >
           <span className="relative flex h-4 w-4 items-center justify-center">
             <Moon
-              size={14}
+              size={16}
               className={`absolute transition-all duration-300 ${
                 theme === "dark"
                   ? "rotate-0 scale-100 opacity-100"
@@ -68,7 +68,7 @@ const Login = () => {
               }`}
             />
             <Sun
-              size={14}
+              size={16}
               className={`absolute transition-all duration-300 ${
                 theme === "dark"
                   ? "rotate-90 scale-0 opacity-0"
@@ -87,7 +87,7 @@ const Login = () => {
 
           <div className="mb-8 flex animate-fade-up flex-col items-center animation-delay-75">
             <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl border border-primary/25 bg-primary/10">
-              <Wheat size={26} className="text-primary" strokeWidth={1.5} />
+              <Wheat size={28} className="text-primary" strokeWidth={1.5} />
             </div>
             <h1 className="text-[1.625rem] font-semibold tracking-tight text-foreground">
               Escala de Folgas
@@ -140,7 +140,7 @@ const Login = () => {
                 >
                   <span className="relative flex h-4 w-4 items-center justify-center">
                     <Eye
-                      size={15}
+                      size={17}
                       className={`absolute transition-all duration-200 ${
                         showPassword
                           ? "scale-100 opacity-100"
@@ -148,7 +148,7 @@ const Login = () => {
                       }`}
                     />
                     <EyeOff
-                      size={15}
+                      size={17}
                       className={`absolute transition-all duration-200 ${
                         showPassword
                           ? "scale-0 opacity-0"
@@ -169,7 +169,7 @@ const Login = () => {
               >
                 {isLoading ? (
                   <>
-                    <Loader2 size={14} className="animate-spin" />
+                    <Loader2 size={16} className="animate-spin" />
                     Entrando...
                   </>
                 ) : (

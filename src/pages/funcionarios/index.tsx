@@ -15,6 +15,7 @@ import { SectionDivider } from "@/components/layout/SectionDivider"
 import { FeedbackBanner } from "@/components/shared/FeedbackBanner"
 import { EmptyState } from "@/components/shared/EmptyState"
 import { DeleteConfirmModal } from "@/components/shared/DeleteConfirmModal"
+import { MobileFab } from "@/components/shared/MobileFab"
 import { FuncionarioCard, FuncionarioCardSkeleton } from "./components/FuncionarioCard"
 import { FuncionarioModal } from "./components/FuncionarioModal"
 import { useFuncionarios } from "./hooks/useFuncionarios"
@@ -58,7 +59,7 @@ export default function Funcionarios() {
     <PageLayout>
 
       <PageHeader
-        icon={<Users size={22} className="text-primary" strokeWidth={1.5} />}
+        icon={<Users size={24} className="text-primary" strokeWidth={1.5} />}
         title="Funcionários"
         subtitle="Gerencie os funcionários da padaria"
         action={
@@ -67,7 +68,7 @@ export default function Funcionarios() {
             disabled={setores.length === 0}
             className="h-10 gap-2 text-xs font-bold uppercase tracking-[0.06em] hover:-translate-y-px hover:shadow-lg hover:shadow-primary/20"
           >
-            <Plus size={14} strokeWidth={2.5} />
+            <Plus size={16} strokeWidth={2.5} />
             Novo Funcionário
           </Button>
         }
@@ -129,7 +130,7 @@ export default function Funcionarios() {
       {/* Empty state — sem funcionários */}
       {!isLoading && funcionarios.length === 0 && (
         <EmptyState
-          icon={<UserRound size={24} className="text-muted-foreground" strokeWidth={1.5} />}
+          icon={<UserRound size={26} className="text-muted-foreground" strokeWidth={1.5} />}
           title="Nenhum funcionário cadastrado"
           description={
             setores.length === 0
@@ -142,7 +143,7 @@ export default function Funcionarios() {
               disabled={setores.length === 0}
               className="h-10 gap-2 text-xs font-bold uppercase tracking-[0.06em] hover:-translate-y-px hover:shadow-lg hover:shadow-primary/20"
             >
-              <Plus size={14} strokeWidth={2.5} />
+              <Plus size={16} strokeWidth={2.5} />
               Cadastrar funcionário
             </Button>
           }
@@ -152,7 +153,7 @@ export default function Funcionarios() {
       {/* Empty state — filtro sem resultados */}
       {!isLoading && funcionarios.length > 0 && filtrados.length === 0 && (
         <EmptyState
-          icon={<UserRound size={20} className="text-muted-foreground" strokeWidth={1.5} />}
+          icon={<UserRound size={22} className="text-muted-foreground" strokeWidth={1.5} />}
           title="Nenhum resultado"
           description="Tente ajustar os filtros aplicados."
         />
@@ -193,6 +194,8 @@ export default function Funcionarios() {
           onUpdate={updateFuncionario}
         />
       )}
+
+      <MobileFab onClick={openCreate} label="Novo funcionário" disabled={setores.length === 0} />
 
       {/* Dialog de exclusão */}
       {deleteTarget && (

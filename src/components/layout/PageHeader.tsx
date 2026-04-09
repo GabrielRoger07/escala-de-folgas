@@ -22,7 +22,7 @@ export function PageHeader({ icon, title, subtitle, action }: PageHeaderProps) {
           </p>
         </div>
       </div>
-      {action && <div className="shrink-0">{action}</div>}
+      {action && <div className="hidden shrink-0 sm:block">{action}</div>}
     </div>
   )
 }

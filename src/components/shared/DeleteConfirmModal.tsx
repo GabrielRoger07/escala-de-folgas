@@ -31,7 +31,7 @@ export function DeleteConfirmModal({ title, description, onCancel, onDelete }: D
 
       <div className="mb-5 flex justify-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-destructive/30 bg-destructive/10">
-          <AlertTriangle size={22} className="text-destructive" strokeWidth={1.5} />
+          <AlertTriangle size={24} className="text-destructive" strokeWidth={1.5} />
         </div>
       </div>
 
@@ -60,9 +60,9 @@ export function DeleteConfirmModal({ title, description, onCancel, onDelete }: D
           )}
         >
           {isDeleting ? (
-            <><Loader2 size={13} className="animate-spin" />Excluindo...</>
+            <><Loader2 size={15} className="animate-spin" />Excluindo...</>
           ) : (
-            <><Trash2 size={13} />Excluir</>
+            <><Trash2 size={15} />Excluir</>
           )}
         </Button>
       </div>

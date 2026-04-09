@@ -64,7 +64,7 @@ export function EscalaCard({ escala, index, onEdit, onDelete }: EscalaCardProps)
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 transition-colors group-hover:border-primary/30 group-hover:bg-primary/15">
-            <CalendarDays size={16} className="text-primary" strokeWidth={1.75} />
+            <CalendarDays size={18} className="text-primary" strokeWidth={1.75} />
           </div>
           <div>
             <h3 className="text-base font-semibold leading-tight text-foreground">
@@ -84,7 +84,7 @@ export function EscalaCard({ escala, index, onEdit, onDelete }: EscalaCardProps)
       {/* Footer */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <Clock size={11} className="text-muted-foreground/60" strokeWidth={1.75} />
+          <Clock size={13} className="text-muted-foreground/60" strokeWidth={1.75} />
           <span className="text-[0.6875rem] text-muted-foreground/60">
             {new Date(escala.created_at).toLocaleDateString("pt-BR")}
           </span>
@@ -101,7 +101,7 @@ export function EscalaCard({ escala, index, onEdit, onDelete }: EscalaCardProps)
                 )}
                 aria-label="Editar escala"
               >
-                <Pencil size={13} strokeWidth={1.75} />
+                <Pencil size={15} strokeWidth={1.75} />
               </button>
             </TooltipTrigger>
             <TooltipContent>Editar</TooltipContent>
@@ -117,7 +117,7 @@ export function EscalaCard({ escala, index, onEdit, onDelete }: EscalaCardProps)
                 )}
                 aria-label="Excluir escala"
               >
-                <Trash2 size={13} strokeWidth={1.75} />
+                <Trash2 size={15} strokeWidth={1.75} />
               </button>
             </TooltipTrigger>
             <TooltipContent>Excluir</TooltipContent>
@@ -132,7 +132,7 @@ export function EscalaCard({ escala, index, onEdit, onDelete }: EscalaCardProps)
             )}
           >
             Ver escala
-            <ArrowRight size={12} strokeWidth={2} />
+            <ArrowRight size={14} strokeWidth={2} />
           </button>
         </div>
       </div>

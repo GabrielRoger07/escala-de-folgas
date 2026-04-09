@@ -1,9 +1,9 @@
 import { useState } from "react"
-import { Check, Loader2, Pencil, Plus } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Plus } from "lucide-react"
 import { FormField } from "@/components/layout/FormField"
 import { ModalBase } from "@/components/shared/ModalBase"
-import { SectionDivider } from "@/components/layout/SectionDivider"
+import { ModalHeader } from "@/components/shared/ModalHeader"
+import { ModalFormActions } from "@/components/shared/ModalFormActions"
 import type { SetorInsert } from "@/types/database"
 import type { ModalState } from "../hooks/useSetores"
 
@@ -48,25 +48,12 @@ export function SetorModal({ state, onClose, onCreate, onUpdate }: SetorModalPro
   return (
     <ModalBase onClose={onClose}>
 
-      {/* Header */}
-      <div className="mb-7 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/25 bg-primary/10">
-          {isEdit
-            ? <Pencil size={18} className="text-primary" strokeWidth={1.5} />
-            : <Plus size={18} className="text-primary" strokeWidth={1.5} />
-          }
-        </div>
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">
-            {isEdit ? "Editar Setor" : "Novo Setor"}
-          </h2>
-          <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-            {isEdit ? "Altere os dados do setor" : "Preencha os dados do novo setor"}
-          </p>
-        </div>
-      </div>
-
-      <SectionDivider className="mb-7" />
+      <ModalHeader
+        isEdit={isEdit}
+        createIcon={<Plus size={20} className="text-primary" strokeWidth={1.5} />}
+        title={isEdit ? "Editar Setor" : "Novo Setor"}
+        subtitle={isEdit ? "Altere os dados do setor" : "Preencha os dados do novo setor"}
+      />
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
 
@@ -97,28 +84,11 @@ export function SetorModal({ state, onClose, onCreate, onUpdate }: SetorModalPro
           {errors.minimo && <p className="text-xs text-destructive">{errors.minimo}</p>}
         </div>
 
-        <div className="mt-2 flex gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            className="flex-1 h-11 text-xs font-bold uppercase tracking-[0.06em]"
-            onClick={onClose}
-            disabled={isSaving}
-          >
-            Cancelar
-          </Button>
-          <Button
-            type="submit"
-            className="flex-1 h-11 text-xs font-bold uppercase tracking-[0.06em] hover:-translate-y-px hover:shadow-lg hover:shadow-primary/20"
-            disabled={isSaving}
-          >
-            {isSaving ? (
-              <><Loader2 size={13} className="animate-spin" />Salvando...</>
-            ) : (
-              <><Check size={13} />{isEdit ? "Salvar alterações" : "Criar setor"}</>
-            )}
-          </Button>
-        </div>
+        <ModalFormActions
+          isSaving={isSaving}
+          onCancel={onClose}
+          submitLabel={isEdit ? "Salvar alterações" : "Criar setor"}
+        />
 
       </form>
     </ModalBase>
