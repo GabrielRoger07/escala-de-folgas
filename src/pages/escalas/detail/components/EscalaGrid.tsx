@@ -59,7 +59,7 @@ export function EscalaGrid({
                         bloqueado ? "text-destructive/60" : "text-muted-foreground",
                       )}
                     >
-                      {String(day.getDate()).padStart(2, "0")}
+                      {String(day.getDate()).padStart(2, "0")}/{String(day.getMonth())}
                     </span>
                     <span
                       className={cn(

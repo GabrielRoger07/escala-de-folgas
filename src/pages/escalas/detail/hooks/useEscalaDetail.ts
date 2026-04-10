@@ -4,7 +4,7 @@ import { supabase } from "@/config/supabaseClient"
 import { useFeedback } from "@/hooks/useFeedback"
 import type { DiaSemana, Funcionario, FolgaInsert } from "@/types/database"
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types -------------------------------------------------------------------
 
 export type EscalaDetail = {
   id: string
@@ -17,7 +17,13 @@ export type EscalaDetail = {
   setores: { nome_setor: string; minimo_por_dia: number }
 }
 
-// Mapping JS getDay() (0=Sun…6=Sat) → DiaSemana enum (only seg–sab)
+export type Domingo = {
+  data: Date
+  index: number
+  folgas: number
+}
+
+// Mapping JS getDay() (0=Sun...6=Sat) -> DiaSemana enum (only seg-sab)
 const DOW_TO_DIA: Record<number, DiaSemana | undefined> = {
   1: "seg", 2: "ter", 3: "qua", 4: "qui", 5: "sex", 6: "sab",
 }
@@ -27,7 +33,7 @@ export function isDiaBloqueado(date: Date, diasBloqueados: DiaSemana[]): boolean
   return dia !== undefined && diasBloqueados.includes(dia)
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// --- Helpers -----------------------------------------------------------------
 
 function getDaysInMonth(year: number, month: number): Date[] {
   const days: Date[] = []
@@ -46,15 +52,12 @@ export function toDateStr(date: Date): string {
   return `${y}-${m}-${d}`
 }
 
-// ─── Previous month consecutive days ─────────────────────────────────────────
+// --- Previous month consecutive days -----------------------------------------
 //
 // Looks up the previous month's escala (same setor) and counts how many
 // consecutive workdays each employee had at the END of that month.
-// Example: if the month had 30 days and the employee's last folga was on day 26,
-// they worked days 27–30 → consecutiveDays = 4.
-//
 // Returns 0 for each employee when there is no previous escala.
-//
+
 async function fetchPrevConsecutive(
   idSetor: string,
   mes: number,
@@ -65,7 +68,6 @@ async function fetchPrevConsecutive(
   const prevAno = mes === 1 ? ano - 1 : ano
   const prevDaysInMonth = new Date(prevAno, prevMes, 0).getDate()
 
-  // Default: no carry-over information available
   const zeros = Object.fromEntries(funcIds.map((id) => [id, 0]))
 
   const { data: prevEscala } = await supabase
@@ -78,7 +80,6 @@ async function fetchPrevConsecutive(
 
   if (!prevEscala) return zeros
 
-  // Fetch the last 6 days of the previous month (max consecutive window)
   const last6Dates = Array.from({ length: 6 }, (_, i) => {
     const d = String(prevDaysInMonth - 5 + i).padStart(2, "0")
     const m = String(prevMes).padStart(2, "0")
@@ -107,107 +108,47 @@ async function fetchPrevConsecutive(
   return result
 }
 
-// ─── Algorithm ────────────────────────────────────────────────────────────────
-//
-// Regra: nenhum funcionário pode trabalhar mais de 6 dias consecutivos.
-//
-// Estratégia dia a dia (pico mínimo — máximo de funcionários por dia):
-//   - OBRIGATÓRIO (consecutivo ≥ 6): todos recebem folga hoje.
-//   - URGENTE     (consecutivo = 5): distribui os urgentes entre hoje e amanhã
-//                                    para minimizar o pico diário de folgas.
-//                                    Fórmula: ceil((urgentes − obrig_hoje) / 2)
-//                                    Exemplo: 4 urgentes → 2 hoje + 2 amanhã
-//                                    em vez de 1 hoje + 3 amanhã.
-//                 Mínimo garantido: max(0, urgentes − maxFolgasPerDay) para evitar
-//                                    infeasibilidade no dia seguinte.
-//   - Dias bloqueados: ninguém pode ter folga → todos incrementam o contador.
-//
-// Dentro de cada nível os funcionários são embaralhados (distribuição justa).
-//
-// Nota: se minimo_por_dia for muito alto em relação ao total de funcionários,
-// pode ser impossível satisfazer a regra de 6 dias para todos (infeasível).
-//
-function generateFolgas(
+// --- Solver API --------------------------------------------------------------
+
+const SOLVER_URL = "http://localhost:8000"
+
+async function generateFolgas(
   funcionarios: Funcionario[],
   days: Date[],
-  minimo_por_dia: number,
-  diasBloqueados: DiaSemana[],
   prevConsecutive: Record<string, number>,
   escala_id: string,
-): FolgaInsert[] {
-  const result: FolgaInsert[] = []
-  const maxFolgasPerDay = Math.max(0, funcionarios.length - minimo_por_dia)
-
-  // Mutable consecutive-days counter per employee
-  const consecutive: Record<string, number> = {}
-  for (const func of funcionarios) {
-    consecutive[func.id] = prevConsecutive[func.id] ?? 0
+): Promise<FolgaInsert[]> {
+  const body = {
+    funcionarios: funcionarios.map((f) => f.id),
+    days: days.map((d) => toDateStr(d)),
+    quantidadeDiasConsecutivos: 6,
+    prevConsecutive,
   }
 
-  for (const day of days) {
-    const ds = toDateStr(day)
+  const res = await fetch(`${SOLVER_URL}/gerar`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  })
 
-    if (isDiaBloqueado(day, diasBloqueados)) {
-      // No folgas allowed; everyone works → increment all counters
-      for (const func of funcionarios) consecutive[func.id]++
-      continue
-    }
-
-    // Split employees by urgency tier, shuffled within each tier
-    const mandatory: Funcionario[] = []
-    const urgent: Funcionario[] = []
-    for (const func of funcionarios) {
-      if (consecutive[func.id] >= 6) mandatory.push(func)
-      else if (consecutive[func.id] >= 5) urgent.push(func)
-    }
-    mandatory.sort(() => Math.random() - 0.5)
-    urgent.sort(() => Math.random() - 0.5)
-
-    const assignedToday = new Set<string>()
-
-    // Step 1: all mandatory employees must get a folga today
-    for (const func of mandatory) {
-      if (assignedToday.size >= maxFolgasPerDay) break
-      assignedToday.add(func.id)
-    }
-
-    // Step 2: distribute urgent employees across today and tomorrow to minimise
-    // the peak folgas per day. Giving ceil((u - m) / 2) today and deferring the
-    // rest (who become mandatory tomorrow) equalises the load between the two days.
-    // We must give at least max(0, urgent.length - maxFolgasPerDay) to prevent
-    // tomorrow's mandatory count from exceeding capacity (infeasibility guard).
-    const slotsLeft = maxFolgasPerDay - assignedToday.size
-    if (slotsLeft > 0 && urgent.length > 0) {
-      const minUrgentNeeded = Math.max(0, urgent.length - maxFolgasPerDay)
-      const optimalUrgent = Math.max(0, Math.ceil((urgent.length - assignedToday.size) / 2))
-      const urgentToGive = Math.min(slotsLeft, Math.max(minUrgentNeeded, optimalUrgent))
-      let given = 0
-      for (const func of urgent) {
-        if (given >= urgentToGive) break
-        assignedToday.add(func.id)
-        given++
-      }
-    }
-
-    // Record folgas
-    for (const funcId of assignedToday) {
-      result.push({ id_funcionario: funcId, id_escala: escala_id, data: ds })
-    }
-
-    // Update counters
-    for (const func of funcionarios) {
-      if (assignedToday.has(func.id)) {
-        consecutive[func.id] = 0
-      } else {
-        consecutive[func.id]++
-      }
-    }
+  if (!res.ok) {
+    throw new Error(`Solver retornou status ${res.status}`)
   }
 
-  return result
+  const data = await res.json()
+
+  if (!data.ok) {
+    throw new Error(data.error ?? "Solver não encontrou solução viável.")
+  }
+
+  return data.folgas.map((f: { id_funcionario: string; data: string }) => ({
+    id_funcionario: f.id_funcionario,
+    id_escala: escala_id,
+    data: f.data,
+  }))
 }
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
+// --- Hook --------------------------------------------------------------------
 
 export function useEscalaDetail() {
   const { id } = useParams<{ id: string }>()
@@ -223,7 +164,7 @@ export function useEscalaDetail() {
   const [isPublishing, setIsPublishing] = useState(false)
   const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false)
 
-  // ── Fetch ────────────────────────────────────────────────────────────────
+  // -- Fetch ------------------------------------------------------------------
 
   const fetchAll = useCallback(async () => {
     if (!id) return
@@ -261,7 +202,6 @@ export function useEscalaDetail() {
     const funcs = (funcRes.data ?? []) as Funcionario[]
     setFuncionarios(funcs)
 
-    // Fetch carry-over consecutive days from previous month
     const prev = await fetchPrevConsecutive(
       escalaData.id_setor,
       escalaData.mes,
@@ -283,7 +223,7 @@ export function useEscalaDetail() {
     load()
   }, [fetchAll])
 
-  // ── Derived ───────────────────────────────────────────────────────────────
+  // -- Derived ----------------------------------------------------------------
 
   const days = useMemo(() => {
     if (!escala) return []
@@ -302,7 +242,7 @@ export function useEscalaDetail() {
     return funcionarios.length - folgasCount
   }
 
-  // ── Toggle folga ──────────────────────────────────────────────────────────
+  // -- Toggle folga -----------------------------------------------------------
 
   async function toggleFolga(funcId: string, dateStr: string) {
     if (!escala || escala.status === "publicada") return
@@ -357,7 +297,7 @@ export function useEscalaDetail() {
     }
   }
 
-  // ── Generate ──────────────────────────────────────────────────────────────
+  // -- Generate ---------------------------------------------------------------
 
   async function generate(replace = false) {
     if (!escala) return
@@ -378,14 +318,22 @@ export function useEscalaDetail() {
       return
     }
 
-    const newFolgas = generateFolgas(
-      funcionarios,
-      days,
-      escala.setores.minimo_por_dia,
-      escala.dias_bloqueados,
-      prevConsecutive,
-      escala.id,
-    )
+    let newFolgas: FolgaInsert[]
+    try {
+      newFolgas = await generateFolgas(
+        funcionarios,
+        days,
+        prevConsecutive,
+        escala.id,
+      )
+    } catch (err) {
+      showFeedback(
+        err instanceof Error ? err.message : "Erro ao comunicar com o solver.",
+        "error",
+      )
+      setIsGenerating(false)
+      return
+    }
 
     if (newFolgas.length === 0) {
       showFeedback("Não foi possível gerar folgas com as restrições atuais.", "error")
@@ -406,7 +354,7 @@ export function useEscalaDetail() {
     setShowRegenerateConfirm(false)
   }
 
-  // ── Publish / Revert ──────────────────────────────────────────────────────
+  // -- Publish / Revert -------------------------------------------------------
 
   async function togglePublish() {
     if (!escala) return
