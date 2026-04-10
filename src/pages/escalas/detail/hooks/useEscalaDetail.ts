@@ -116,6 +116,7 @@ async function generateFolgas(
   funcionarios: Funcionario[],
   days: Date[],
   prevConsecutive: Record<string, number>,
+  diasBloqueados: DiaSemana[],
   escala_id: string,
 ): Promise<FolgaInsert[]> {
   const body = {
@@ -123,6 +124,7 @@ async function generateFolgas(
     days: days.map((d) => toDateStr(d)),
     quantidadeDiasConsecutivos: 6,
     prevConsecutive,
+    diasBloqueados,
   }
 
   const res = await fetch(`${SOLVER_URL}/gerar`, {
@@ -324,6 +326,7 @@ export function useEscalaDetail() {
         funcionarios,
         days,
         prevConsecutive,
+        escala.dias_bloqueados,
         escala.id,
       )
     } catch (err) {
