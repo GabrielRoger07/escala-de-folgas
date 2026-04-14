@@ -110,7 +110,7 @@ async function fetchPrevConsecutive(
 
 // --- Solver API --------------------------------------------------------------
 
-const SOLVER_URL = "http://localhost:8000"
+const SOLVER_URL = import.meta.env.VITE_SOLVER_URL
 
 async function generateFolgas(
   funcionarios: Funcionario[],
