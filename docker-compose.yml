@@ -1,0 +1,9 @@
+services:
+  api-escala-de-folgas:
+    container_name: api-escala-de-folgas
+    build: ./backend
+    environment:
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
