@@ -1,34 +1,27 @@
-"""
-Gerador de Escala de Folgas — CP-SAT (Google OR-Tools)
-
-Execução standalone: python main.py
-Servidor API:       uvicorn main:app --port 8000
-"""
-
-import json
+import os
 import math
 from datetime import datetime
 from typing import Dict, List
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from ortools.sat.python import cp_model
 from pydantic import BaseModel
 
-
-# ════════════════════════════════════════════════════════════════
-# API
-# ════════════════════════════════════════════════════════════════
+load_dotenv()
 
 app = FastAPI()
 
+origins = os.getenv("ALLOWED_ORIGINS", "")
+allowed_origins = [origin.strip() for origin in origins.split(",") if origin]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origins=allowed_origins,
+    allow_methods=["POST"],
     allow_headers=["*"],
 )
-
 
 class GerarRequest(BaseModel):
     funcionarios: List[str]
@@ -37,17 +30,14 @@ class GerarRequest(BaseModel):
     prevConsecutive: Dict[str, int]
     diasBloqueados: List[str]  # ex: ["ter", "sex"]
 
-
 class FolgaItem(BaseModel):
     id_funcionario: str
     data: str
-
 
 class GerarResponse(BaseModel):
     ok: bool
     folgas: List[FolgaItem]
     error: str | None = None
-
 
 @app.post("/gerar", response_model=GerarResponse)
 def gerar(req: GerarRequest):
@@ -78,29 +68,6 @@ def gerar(req: GerarRequest):
     except ValueError as e:
         return GerarResponse(ok=False, folgas=[], error=str(e))
 
-
-# ════════════════════════════════════════════════════════════════
-# ENTRADA STANDALONE
-# ════════════════════════════════════════════════════════════════
-
-INPUT = {
-    "funcionarios": ["func_1", "func_2", "func_3", "func_4"],
-    "days": [f"2026-04-{str(d).zfill(2)}" for d in range(1, 31)],
-    "quantidadeDiasConsecutivos": 6,
-    "prevConsecutive": {
-        "func_1": 2,
-        "func_2": 0,
-        "func_3": 4,
-        "func_4": 1,
-    },
-    "diasBloqueados": ["ter", "sex"],
-}
-
-
-# ════════════════════════════════════════════════════════════════
-# FUNÇÕES AUXILIARES
-# ════════════════════════════════════════════════════════════════
-
 def parse_input(data: dict):
     return (
         data["funcionarios"],
@@ -108,7 +75,6 @@ def parse_input(data: dict):
         data["quantidadeDiasConsecutivos"],
         data["prevConsecutive"],
     )
-
 
 def identificar_domingos(days: list[str]) -> list[int]:
     domingos = []
@@ -118,13 +84,11 @@ def identificar_domingos(days: list[str]) -> list[int]:
             domingos.append(idx)
     return domingos
 
-
 # Mapeia weekday() do Python para o nome usado no frontend
 _WEEKDAY_TO_DIA = {
     0: "seg", 1: "ter", 2: "qua", 3: "qui", 4: "sex", 5: "sab",
     # domingo (6) não entra aqui — tratado separadamente
 }
-
 
 def identificar_bloqueados(days: list[str], dias_bloqueados: list[str]) -> set[int]:
     """Retorna os índices dos dias cujo dia da semana está bloqueado."""
@@ -139,7 +103,6 @@ def identificar_bloqueados(days: list[str], dias_bloqueados: list[str]) -> set[i
             bloqueados.add(idx)
     return bloqueados
 
-
 def validar_entrada(funcionarios, days, prev_consecutive, domingos):
     for f in funcionarios:
         if f not in prev_consecutive:
@@ -149,11 +112,9 @@ def validar_entrada(funcionarios, days, prev_consecutive, domingos):
     if len(domingos) > 5:
         raise ValueError("O período não deve conter mais de 5 domingos.")
 
-
 # ════════════════════════════════════════════════════════════════
 # MODELO CP-SAT
 # ════════════════════════════════════════════════════════════════
-
 def montar_e_resolver(funcionarios, days, max_consec, prev_consecutive, domingos, bloqueados=None):
     if bloqueados is None:
         bloqueados = set()
@@ -419,11 +380,9 @@ def montar_e_resolver(funcionarios, days, max_consec, prev_consecutive, domingos
 
     return gerar_saida(solver, x, funcionarios, days, num_days, domingos, prev_consecutive, max_consec)
 
-
 # ════════════════════════════════════════════════════════════════
 # SAÍDA
 # ════════════════════════════════════════════════════════════════
-
 def gerar_saida(solver, x, funcionarios, days, num_days, domingos, prev_consecutive, max_consec):
     folgas = []
     for i, f in enumerate(funcionarios):
@@ -487,39 +446,3 @@ def gerar_saida(solver, x, funcionarios, days, num_days, domingos, prev_consecut
     print()
 
     return {"folgas": folgas}
-
-
-# ════════════════════════════════════════════════════════════════
-# MAIN (standalone)
-# ════════════════════════════════════════════════════════════════
-
-def main():
-    funcionarios, days, max_consec, prev_consecutive = parse_input(INPUT)
-    dias_bloqueados = INPUT.get("diasBloqueados", [])
-    domingos = identificar_domingos(days)
-    bloqueados = identificar_bloqueados(days, dias_bloqueados)
-
-    print(f"Funcionários: {funcionarios}")
-    print(f"Período: {days[0]} a {days[-1]} ({len(days)} dias)")
-    print(f"Máx. consecutivos desejados: {max_consec}")
-    print(f"Domingos: {[days[d] for d in domingos]}")
-    print(f"Dias bloqueados: {dias_bloqueados} -> indices {sorted(bloqueados)}")
-    print(f"prevConsecutive: {prev_consecutive}")
-    print()
-
-    validar_entrada(funcionarios, days, prev_consecutive, domingos)
-
-    resultado = montar_e_resolver(funcionarios, days, max_consec, prev_consecutive, domingos, bloqueados)
-
-    if resultado is None:
-        print("\nNão foi possível encontrar uma solução viável.")
-        return
-
-    print("\n" + "=" * 60)
-    print("SAÍDA JSON")
-    print("=" * 60)
-    print(json.dumps(resultado, indent=2, ensure_ascii=False))
-
-
-if __name__ == "__main__":
-    main()
