@@ -34,15 +34,15 @@ export default function Managers() {
 
       <PageHeader
         icon={<Users size={24} className="text-primary" strokeWidth={1.5} />}
-        title="Managers"
-        subtitle="Gerencie os managers da empresa"
+        title="Gerentes"
+        subtitle="Gerencie os gerentes da empresa"
         action={
           <Button
             onClick={openCreate}
             className="h-10 gap-2 text-xs font-bold uppercase tracking-[0.06em] hover:-translate-y-px hover:shadow-lg hover:shadow-primary/20"
           >
             <Plus size={16} strokeWidth={2.5} />
-            Novo Manager
+            Novo Gerente
           </Button>
         }
       />
@@ -65,15 +65,15 @@ export default function Managers() {
       {!isLoading && managers.length === 0 && (
         <EmptyState
           icon={<UserRound size={26} className="text-muted-foreground" strokeWidth={1.5} />}
-          title="Nenhum manager cadastrado"
-          description="Crie o primeiro manager para começar."
+          title="Nenhum gerente cadastrado"
+          description="Crie o primeiro gerente para começar."
           action={
             <Button
               onClick={openCreate}
               className="h-10 gap-2 text-xs font-bold uppercase tracking-[0.06em] hover:-translate-y-px hover:shadow-lg hover:shadow-primary/20"
             >
               <Plus size={16} strokeWidth={2.5} />
-              Criar primeiro manager
+              Criar primeiro gerente
             </Button>
           }
         />
@@ -97,7 +97,7 @@ export default function Managers() {
       {/* Counter */}
       {!isLoading && managers.length > 0 && (
         <p className="mt-6 animate-fade-in text-center text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground animation-delay-375">
-          {managers.length} {managers.length === 1 ? "manager cadastrado" : "managers cadastrados"}
+          {managers.length} {managers.length === 1 ? "gerente cadastrado" : "gerentes cadastrados"}
         </p>
       )}
 
@@ -109,7 +109,7 @@ export default function Managers() {
         />
       )}
 
-      <MobileFab onClick={openCreate} label="Novo manager" />
+      <MobileFab onClick={openCreate} label="Novo gerente" />
 
       {/* Modal alterar senha */}
       {changePasswordTarget && (
@@ -123,10 +123,10 @@ export default function Managers() {
       {/* Dialog de exclusão */}
       {deleteTarget && (
         <DeleteConfirmModal
-          title="Excluir manager?"
+          title="Excluir gerente?"
           description={
             <>
-              Esta ação não pode ser desfeita. O manager{" "}
+              Esta ação não pode ser desfeita. O gerente{" "}
               <span className="font-semibold text-foreground">"{deleteTarget.nome}"</span>{" "}
               perderá o acesso ao sistema.
             </>

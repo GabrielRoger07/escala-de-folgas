@@ -43,8 +43,8 @@ export function ManagerModal({ onClose, onCreate }: ManagerModalProps) {
       <ModalHeader
         isEdit={false}
         createIcon={<UserPlus size={20} className="text-primary" strokeWidth={1.5} />}
-        title="Novo Manager"
-        subtitle="Preencha os dados de acesso do manager"
+        title="Novo Gerente"
+        subtitle="Preencha os dados de acesso do gerente"
       />
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
@@ -91,7 +91,7 @@ export function ManagerModal({ onClose, onCreate }: ManagerModalProps) {
         <ModalFormActions
           isSaving={isSaving}
           onCancel={onClose}
-          submitLabel="Criar manager"
+          submitLabel="Criar gerente"
         />
 
       </form>

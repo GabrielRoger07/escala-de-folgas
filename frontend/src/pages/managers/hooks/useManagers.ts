@@ -25,7 +25,7 @@ export function useManagers() {
 
     setIsLoading(false)
     if (error) {
-      showFeedback("Erro ao carregar managers. Tente recarregar a página.", "error")
+      showFeedback("Erro ao carregar gerentes. Tente recarregar a página.", "error")
       return
     }
     setManagers((data as Manager[]) ?? [])
@@ -56,11 +56,11 @@ export function useManagers() {
     console.log("response error:", error)
 
     if (error) {
-      showFeedback("Erro ao criar manager. Tente novamente.", "error")
+      showFeedback("Erro ao criar gerente. Tente novamente.", "error")
       return false
     }
 
-    showFeedback("Manager criado com sucesso.", "success")
+    showFeedback("G criado com sucesso.", "success")
     await fetchManagers()
     return true
   }
@@ -74,11 +74,11 @@ export function useManagers() {
     })
 
     if (error) {
-      showFeedback("Erro ao excluir manager. Tente novamente.", "error")
+      showFeedback("Erro ao excluir gerente. Tente novamente.", "error")
       return false
     }
 
-    showFeedback(`Manager "${manager.nome}" excluído com sucesso.`, "success")
+    showFeedback(`Gerente "${manager.nome}" excluído com sucesso.`, "success")
     await fetchManagers()
     return true
   }
