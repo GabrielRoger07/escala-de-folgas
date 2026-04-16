@@ -9,6 +9,7 @@ import { DeleteConfirmModal } from "@/components/shared/DeleteConfirmModal"
 import { MobileFab } from "@/components/shared/MobileFab"
 import { ManagerCard, ManagerCardSkeleton } from "./components/ManagerCard"
 import { ManagerModal } from "./components/ManagerModal"
+import { ChangePasswordModal } from "./components/ChangePasswordModal"
 import { useManagers } from "./hooks/useManagers"
 
 export default function Managers() {
@@ -19,10 +20,13 @@ export default function Managers() {
     modalState,
     deleteTarget,
     setDeleteTarget,
+    changePasswordTarget,
+    setChangePasswordTarget,
     openCreate,
     closeModal,
     createManager,
     deleteManager,
+    changeManagerPassword,
   } = useManagers()
 
   return (
@@ -84,6 +88,7 @@ export default function Managers() {
               manager={manager}
               index={i}
               onDelete={setDeleteTarget}
+              onChangePassword={setChangePasswordTarget}
             />
           ))}
         </div>
@@ -105,6 +110,15 @@ export default function Managers() {
       )}
 
       <MobileFab onClick={openCreate} label="Novo manager" />
+
+      {/* Modal alterar senha */}
+      {changePasswordTarget && (
+        <ChangePasswordModal
+          manager={changePasswordTarget}
+          onClose={() => setChangePasswordTarget(null)}
+          onChangePassword={changeManagerPassword}
+        />
+      )}
 
       {/* Dialog de exclusão */}
       {deleteTarget && (

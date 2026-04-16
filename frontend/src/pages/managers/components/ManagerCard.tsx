@@ -1,7 +1,8 @@
-import { Mail, UserRound } from "lucide-react"
+import { KeyRound, Mail, UserRound } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Separator } from "@/components/ui/separator"
 import { CardActions } from "@/components/shared/CardActions"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn, ANIMATION_DELAYS } from "@/lib/utils"
 import type { Manager } from "@/types/database"
 
@@ -29,9 +30,10 @@ interface ManagerCardProps {
   manager: Manager
   index: number
   onDelete: (manager: Manager) => void
+  onChangePassword: (manager: Manager) => void
 }
 
-export function ManagerCard({ manager, index, onDelete }: ManagerCardProps) {
+export function ManagerCard({ manager, index, onDelete, onChangePassword }: ManagerCardProps) {
   return (
     <div
       className={cn(
@@ -51,7 +53,25 @@ export function ManagerCard({ manager, index, onDelete }: ManagerCardProps) {
           </h3>
         </div>
 
-        <CardActions onDelete={() => onDelete(manager)} />
+        <div className="flex shrink-0 items-center gap-1 opacity-60 transition-opacity group-hover:opacity-100">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => onChangePassword(manager)}
+                className={cn(
+                  "flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground",
+                  "transition-all duration-150 hover:border-border hover:bg-accent hover:text-foreground"
+                )}
+                aria-label="Alterar senha"
+              >
+                <KeyRound size={16} strokeWidth={1.75} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>Alterar senha</TooltipContent>
+          </Tooltip>
+
+          <CardActions onDelete={() => onDelete(manager)} />
+        </div>
       </div>
 
       <Separator />

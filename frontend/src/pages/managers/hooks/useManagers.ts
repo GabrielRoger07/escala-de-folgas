@@ -10,6 +10,7 @@ export function useManagers() {
   const [isLoading, setIsLoading] = useState(true)
   const [modalState, setModalState] = useState<ModalState>({ open: false })
   const [deleteTarget, setDeleteTarget] = useState<Manager | null>(null)
+  const [changePasswordTarget, setChangePasswordTarget] = useState<Manager | null>(null)
   const { feedback, showFeedback } = useFeedback()
 
   // ── Data ──────────────────────────────────────────────────────────────────
@@ -75,6 +76,23 @@ export function useManagers() {
     return true
   }
 
+  async function changeManagerPassword(managerId: string, password: string): Promise<boolean> {
+    const { data: { session } } = await supabase.auth.getSession()
+
+    const { error } = await supabase.functions.invoke("alterar-senha-manager", {
+      body: { manager_id: managerId, password },
+      headers: { Authorization: `Bearer ${session?.access_token}` },
+    })
+
+    if (error) {
+      showFeedback("Erro ao alterar senha. Tente novamente.", "error")
+      return false
+    }
+
+    showFeedback("Senha alterada com sucesso.", "success")
+    return true
+  }
+
   // ── Modal handlers ────────────────────────────────────────────────────────
 
   function openCreate() { setModalState({ open: true }) }
@@ -87,9 +105,12 @@ export function useManagers() {
     modalState,
     deleteTarget,
     setDeleteTarget,
+    changePasswordTarget,
+    setChangePasswordTarget,
     openCreate,
     closeModal,
     createManager,
     deleteManager,
+    changeManagerPassword,
   }
 }
