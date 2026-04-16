@@ -1,3 +1,6 @@
 .env
+scripts/.env
+scripts/node_modules/
 backend/venv/
 backend/__pycache__/
+supabase/.temp/
