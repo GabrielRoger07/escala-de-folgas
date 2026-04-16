@@ -31,7 +31,11 @@ export function useManagers() {
   }, [showFeedback])
 
   useEffect(() => {
-    fetchManagers()
+    const loadManagers = async () => { 
+      await fetchManagers() 
+    }
+    
+    loadManagers()
   }, [fetchManagers])
 
   // ── Mutations ─────────────────────────────────────────────────────────────
