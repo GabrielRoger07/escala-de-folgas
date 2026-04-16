@@ -1,0 +1,91 @@
+import { useCallback, useEffect, useState } from "react"
+import { supabase } from "@/config/supabaseClient"
+import { useFeedback } from "@/hooks/useFeedback"
+import type { Manager } from "@/types/database"
+
+export type ModalState = { open: false } | { open: true }
+
+export function useManagers() {
+  const [managers, setManagers] = useState<Manager[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [modalState, setModalState] = useState<ModalState>({ open: false })
+  const [deleteTarget, setDeleteTarget] = useState<Manager | null>(null)
+  const { feedback, showFeedback } = useFeedback()
+
+  // ── Data ──────────────────────────────────────────────────────────────────
+
+  const fetchManagers = useCallback(async () => {
+    setIsLoading(true)
+    const { data, error } = await supabase
+      .from("usuarios")
+      .select("id, email, nome, user_role, id_empresa")
+      .eq("user_role", "manager")
+      .order("nome", { ascending: true })
+
+    setIsLoading(false)
+    if (error) {
+      showFeedback("Erro ao carregar managers. Tente recarregar a página.", "error")
+      return
+    }
+    setManagers((data as Manager[]) ?? [])
+  }, [showFeedback])
+
+  useEffect(() => {
+    fetchManagers()
+  }, [fetchManagers])
+
+  // ── Mutations ─────────────────────────────────────────────────────────────
+
+  async function createManager(payload: { email: string; password: string; nome: string }): Promise<boolean> {
+    const { data: { session } } = await supabase.auth.getSession()
+
+    console.log("session:", session)
+    console.log("access_token:", session?.access_token)
+
+    const { data, error } = await supabase.functions.invoke("criar-manager", {
+      body: payload,
+      headers: { Authorization: `Bearer ${session?.access_token}` },
+    })
+
+    console.log("response data:", data)
+    console.log("response error:", error)
+
+    if (error) {
+      showFeedback("Erro ao criar manager. Tente novamente.", "error")
+      return false
+    }
+
+    showFeedback("Manager criado com sucesso.", "success")
+    await fetchManagers()
+    return true
+  }
+
+  async function deleteManager(manager: Manager): Promise<boolean> {
+    const { error } = await supabase.auth.admin.deleteUser(manager.id)
+    if (error) {
+      showFeedback("Erro ao excluir manager. Tente novamente.", "error")
+      return false
+    }
+    showFeedback(`Manager "${manager.nome}" excluído com sucesso.`, "success")
+    await fetchManagers()
+    return true
+  }
+
+  // ── Modal handlers ────────────────────────────────────────────────────────
+
+  function openCreate() { setModalState({ open: true }) }
+  function closeModal() { setModalState({ open: false }) }
+
+  return {
+    managers,
+    isLoading,
+    feedback,
+    modalState,
+    deleteTarget,
+    setDeleteTarget,
+    openCreate,
+    closeModal,
+    createManager,
+    deleteManager,
+  }
+}
