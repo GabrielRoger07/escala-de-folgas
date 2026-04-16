@@ -66,11 +66,18 @@ export function useManagers() {
   }
 
   async function deleteManager(manager: Manager): Promise<boolean> {
-    const { error } = await supabase.auth.admin.deleteUser(manager.id)
+    const { data: { session } } = await supabase.auth.getSession()
+
+    const { error } = await supabase.functions.invoke("deletar-manager", {
+      body: { manager_id: manager.id },
+      headers: { Authorization: `Bearer ${session?.access_token}` },
+    })
+
     if (error) {
       showFeedback("Erro ao excluir manager. Tente novamente.", "error")
       return false
     }
+
     showFeedback(`Manager "${manager.nome}" excluído com sucesso.`, "success")
     await fetchManagers()
     return true
