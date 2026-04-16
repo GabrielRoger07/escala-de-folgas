@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { supabase } from "@/config/supabaseClient"
 import { useFeedback } from "@/hooks/useFeedback"
+import { useAuth } from "@/auth/useAuth"
 import type { Setor, SetorInsert } from "@/types/database"
 
 export type ModalState =
@@ -14,6 +15,7 @@ export function useSetores() {
   const [modalState, setModalState] = useState<ModalState>({ open: false })
   const [deleteTarget, setDeleteTarget] = useState<Setor | null>(null)
   const { feedback, showFeedback } = useFeedback()
+  const { idEmpresa } = useAuth()
 
   // ── Data ──────────────────────────────────────────────────────────────────
 
@@ -40,7 +42,7 @@ export function useSetores() {
   // ── Mutations ─────────────────────────────────────────────────────────────
 
   async function createSetor(payload: SetorInsert): Promise<boolean> {
-    const { error } = await supabase.from("setores").insert(payload)
+    const { error } = await supabase.from("setores").insert({ ...payload, id_empresa: idEmpresa })
     if (error) { showFeedback("Erro ao criar setor. Tente novamente.", "error"); return false }
     showFeedback("Setor criado com sucesso.", "success")
     await fetchSetores()

@@ -10,8 +10,11 @@ import { MobileFab } from "@/components/shared/MobileFab"
 import { SetorCard, SetorCardSkeleton } from "./components/SetorCard"
 import { SetorModal } from "./components/SetorModal"
 import { useSetores } from "./hooks/useSetores"
+import { useAuth } from "@/auth/useAuth"
 
 export default function Setores() {
+  const { userRole } = useAuth()
+  const isCeo = userRole === "ceo"
   const {
     setores,
     isLoading,
@@ -34,7 +37,7 @@ export default function Setores() {
         icon={<Wheat size={24} className="text-primary" strokeWidth={1.5} />}
         title="Setores"
         subtitle="Gerencie os setores da padaria"
-        action={
+        action={isCeo && (
           <Button
             onClick={openCreate}
             className="h-10 gap-2 text-xs font-bold uppercase tracking-[0.06em] hover:-translate-y-px hover:shadow-lg hover:shadow-primary/20"
@@ -42,7 +45,7 @@ export default function Setores() {
             <Plus size={16} strokeWidth={2.5} />
             Novo Setor
           </Button>
-        }
+        )}
       />
 
       <SectionDivider className="mb-8 animate-fade-up animation-delay-75" />
@@ -65,7 +68,7 @@ export default function Setores() {
           icon={<Building2 size={26} className="text-muted-foreground" strokeWidth={1.5} />}
           title="Nenhum setor cadastrado"
           description="Crie o primeiro setor para começar a organizar os funcionários."
-          action={
+          action={isCeo && (
             <Button
               onClick={openCreate}
               className="h-10 gap-2 text-xs font-bold uppercase tracking-[0.06em] hover:-translate-y-px hover:shadow-lg hover:shadow-primary/20"
@@ -73,7 +76,7 @@ export default function Setores() {
               <Plus size={16} strokeWidth={2.5} />
               Criar primeiro setor
             </Button>
-          }
+          )}
         />
       )}
 
@@ -85,8 +88,8 @@ export default function Setores() {
               key={setor.id}
               setor={setor}
               index={i}
-              onEdit={openEdit}
-              onDelete={setDeleteTarget}
+              onEdit={isCeo ? openEdit : undefined}
+              onDelete={isCeo ? setDeleteTarget : undefined}
             />
           ))}
         </div>
@@ -100,7 +103,7 @@ export default function Setores() {
       )}
 
       {/* Modal criar/editar */}
-      {modalState.open && (
+      {isCeo && modalState.open && (
         <SetorModal
           state={modalState}
           onClose={closeModal}
@@ -109,10 +112,10 @@ export default function Setores() {
         />
       )}
 
-      <MobileFab onClick={openCreate} label="Novo setor" />
+      {isCeo && <MobileFab onClick={openCreate} label="Novo setor" />}
 
       {/* Dialog de exclusão */}
-      {deleteTarget && (
+      {isCeo && deleteTarget && (
         <DeleteConfirmModal
           title="Excluir setor?"
           description={

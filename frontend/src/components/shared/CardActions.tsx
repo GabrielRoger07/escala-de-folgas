@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 
 interface CardActionsProps {
   onEdit?: () => void
-  onDelete: () => void
+  onDelete?: () => void
 }
 
 /**
@@ -32,21 +32,23 @@ export function CardActions({ onEdit, onDelete }: CardActionsProps) {
         </Tooltip>
       )}
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            onClick={onDelete}
-            className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground",
-              "transition-all duration-150 hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
-            )}
-            aria-label="Excluir"
-          >
-            <Trash2 size={16} strokeWidth={1.75} />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent>Excluir</TooltipContent>
-      </Tooltip>
+      {onDelete && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={onDelete}
+              className={cn(
+                "flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground",
+                "transition-all duration-150 hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+              )}
+              aria-label="Excluir"
+            >
+              <Trash2 size={16} strokeWidth={1.75} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>Excluir</TooltipContent>
+        </Tooltip>
+      )}
     </div>
   )
 }

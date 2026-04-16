@@ -33,8 +33,8 @@ export function SetorCardSkeleton() {
 interface SetorCardProps {
   setor: Setor
   index: number
-  onEdit: (setor: Setor) => void
-  onDelete: (setor: Setor) => void
+  onEdit?: (setor: Setor) => void
+  onDelete?: (setor: Setor) => void
 }
 
 export function SetorCard({ setor, index, onEdit, onDelete }: SetorCardProps) {
@@ -57,7 +57,10 @@ export function SetorCard({ setor, index, onEdit, onDelete }: SetorCardProps) {
           </h3>
         </div>
 
-        <CardActions onEdit={() => onEdit(setor)} onDelete={() => onDelete(setor)} />
+        <CardActions
+          onEdit={onEdit ? () => onEdit(setor) : undefined}
+          onDelete={onDelete ? () => onDelete(setor) : undefined}
+        />
       </div>
 
       <Separator />
