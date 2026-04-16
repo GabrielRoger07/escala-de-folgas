@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { NavLink, useNavigate } from "react-router-dom"
-import { LogOut, Menu, Moon, Sun, Wheat, X } from "lucide-react"
+import { LogOut, Menu, Moon, ShieldCheck, Sun, Wheat, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -12,19 +12,23 @@ import {
 } from "@/components/ui/dialog"
 import { supabase } from "@/config/supabaseClient"
 import { useTheme } from "@/hooks/useTheme"
+import { useAuth } from "@/auth/useAuth"
 
 const navLinks = [
-  { to: "/setores", label: "Setores" },
-  { to: "/funcionarios", label: "Funcionários" },
-  { to: "/escalas", label: "Escalas" },
+  { to: "/setores", label: "Setores", ceoOnly: false },
+  { to: "/funcionarios", label: "Funcionários", ceoOnly: false },
+  { to: "/escalas", label: "Escalas", ceoOnly: false },
+  { to: "/managers", label: "Managers", ceoOnly: true },
 ]
 
 const Navbar = () => {
   const navigate = useNavigate()
   const { theme, toggle } = useTheme()
+  const { userRole } = useAuth()
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const isCeo = userRole === "ceo"
 
   const signOut = async () => {
     setIsLoggingOut(true)
@@ -40,32 +44,33 @@ const Navbar = () => {
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-sm">
-        <div className="mx-auto grid h-14 grid-cols-2 sm:grid-cols-3 items-center px-6">
+        <div className="mx-auto grid h-14 grid-cols-2 md:grid-cols-3 items-center px-6">
 
           <div onClick={() => navigate("/home")} className="flex items-center gap-2 text-sm font-semibold text-foreground justify-self-start cursor-pointer">
             <Wheat size={18} className="text-primary" strokeWidth={1.5} />
             Escala de Folgas
           </div>
 
-          <nav className="hidden sm:flex items-center gap-1 justify-self-center cursor-pointer">
-            {navLinks.map(({ to, label }) => (
+          <nav className="hidden md:flex items-center gap-1 justify-self-center cursor-pointer">
+            {navLinks.filter(({ ceoOnly }) => !ceoOnly || isCeo).map(({ to, label, ceoOnly }) => (
               <NavLink
                 key={to}
                 to={to}
                 className={({ isActive }) =>
-                  `rounded-md px-3 py-1.5 text-xs font-medium uppercase tracking-[0.06em] transition-colors ${
+                  `flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium uppercase tracking-[0.06em] transition-colors ${
                     isActive
                       ? "bg-primary/10 text-primary"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`
                 }
               >
+                {ceoOnly && <ShieldCheck size={12} className="shrink-0" strokeWidth={2} />}
                 {label}
               </NavLink>
             ))}
           </nav>
 
-          <div className="hidden sm:flex items-center gap-1 justify-self-end">
+          <div className="hidden md:flex items-center gap-1 justify-self-end">
             <Button
               variant="ghost"
               size="icon"
@@ -105,7 +110,7 @@ const Navbar = () => {
           </div>
 
           {/* Hamburger button — only on sm and below */}
-          <div className="flex sm:hidden items-center gap-1 justify-self-end">
+          <div className="flex md:hidden items-center gap-1 justify-self-end">
             <Button
               variant="ghost"
               size="icon"
@@ -147,21 +152,27 @@ const Navbar = () => {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="sm:hidden border-t border-border/40 bg-background/95 px-6 py-3 flex flex-col gap-1">
-            {navLinks.map(({ to, label }) => (
+          <div className="md:hidden border-t border-border/40 bg-background/95 px-6 py-3 flex flex-col gap-1">
+            {navLinks.filter(({ ceoOnly }) => !ceoOnly || isCeo).map(({ to, label, ceoOnly }) => (
               <NavLink
                 key={to}
                 to={to}
                 onClick={() => setMenuOpen(false)}
                 className={({ isActive }) =>
-                  `rounded-md px-3 py-2 text-xs font-medium uppercase tracking-[0.06em] transition-colors ${
+                  `flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium uppercase tracking-[0.06em] transition-colors ${
                     isActive
                       ? "bg-primary/10 text-primary"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`
                 }
               >
+                {ceoOnly && <ShieldCheck size={12} className="shrink-0" strokeWidth={2} />}
                 {label}
+                {ceoOnly && (
+                  <span className="ml-auto text-[9px] font-semibold tracking-widest uppercase text-muted-foreground/60 border border-border/60 rounded px-1 py-px leading-none">
+                    CEO
+                  </span>
+                )}
               </NavLink>
             ))}
             <div className="mt-1 pt-2 border-t border-border/40">
