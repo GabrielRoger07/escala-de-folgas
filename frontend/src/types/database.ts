@@ -82,6 +82,18 @@ export type EscalaUpdate = {
   dias_bloqueados: DiaSemana[]
 }
 
+// ── Usuario ───────────────────────────────────────────────────────────────────
+
+export type UserRole = 'ceo' | 'manager'
+
+export type Manager = {
+  id: string
+  email: string
+  nome: string
+  user_role: UserRole
+  id_empresa: string
+}
+
 // ── Folga ─────────────────────────────────────────────────────────────────────
 
 export type Folga = {
