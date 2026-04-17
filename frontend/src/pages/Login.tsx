@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import { Wheat, Loader2, Moon, Sun, Eye, EyeOff } from "lucide-react"
 import { supabase } from "@/config/supabaseClient"
 import { Button } from "@/components/ui/button"
@@ -160,7 +160,16 @@ const Login = () => {
               </div>
             </div>
 
-            <div className="mt-1 animate-fade-up animation-delay-375">
+            <div className="flex justify-end animate-fade-up animation-delay-375">
+              <Link
+                to="/forgot-password"
+                className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Esqueci minha senha
+              </Link>
+            </div>
+
+            <div className="animate-fade-up animation-delay-375">
               <Button
                 type="submit"
                 size="lg"
