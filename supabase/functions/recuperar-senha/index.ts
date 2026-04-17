@@ -1,12 +1,25 @@
 import "@supabase/functions-js/edge-runtime.d.ts"
 import { createClient } from "jsr:@supabase/supabase-js@2"
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+const allowedOrigins = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean)
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") ?? ""
+  const headers: Record<string, string> = {
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  }
+  if (allowedOrigins.includes(origin)) {
+    headers["Access-Control-Allow-Origin"] = origin
+  }
+  return headers
 }
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req)
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders })
   }
@@ -49,29 +62,17 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ ok: true }), { status: 200, headers: corsHeaders })
     }
 
-    console.log("oi")
-
-    console.log("valor de redirectTo: ", redirectTo)
-
     const { error: resetError } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
       redirectTo,
     })
 
-    console.log("eae")
-
     if (resetError) {
-      console.log("entrou no if")
       return new Response(JSON.stringify({ error: "Erro ao enviar e-mail" }), { status: 500, headers: corsHeaders })
     }
 
-    console.log("não entrou no if")
-
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: corsHeaders })
 
-    console.log("teste final")
-
   } catch {
-    console.log("entrou no catch")
     return new Response(JSON.stringify({ error: "Erro interno" }), { status: 500, headers: corsHeaders })
   }
 })
