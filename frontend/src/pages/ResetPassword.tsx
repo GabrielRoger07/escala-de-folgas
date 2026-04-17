@@ -22,16 +22,22 @@ const ResetPassword = () => {
   const [message, setMessage] = useState<MessageState>({ text: "", type: "" })
   const [isLoading, setIsLoading] = useState(false)
   const [sessionReady, setSessionReady] = useState(false)
+  const [invalidLink, setInvalidLink] = useState(false)
 
   useEffect(() => {
-    // O Supabase processa o token da URL automaticamente via onAuthStateChange
+    const timeout = setTimeout(() => setInvalidLink(true), 5000)
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
+        clearTimeout(timeout)
         setSessionReady(true)
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      clearTimeout(timeout)
+      subscription.unsubscribe()
+    }
   }, [])
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -61,6 +67,23 @@ const ResetPassword = () => {
 
     setMessage({ text: "Senha redefinida com sucesso! Redirecionando...", type: "success" })
     setTimeout(() => navigate("/login", { replace: true }), 2000)
+  }
+
+  if (invalidLink) {
+    return (
+      <div className="relative flex min-h-screen items-center justify-center bg-background p-5">
+        <div className="w-full max-w-[400px] rounded-2xl border border-border bg-card p-10 shadow-2xl text-center">
+          <p className="text-sm font-medium text-destructive">Link inválido ou expirado.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Solicite um novo link de redefinição de senha.</p>
+          <Button
+            className="mt-6 w-full h-11 text-xs font-bold uppercase tracking-[0.06em]"
+            onClick={() => navigate("/forgot-password", { replace: true })}
+          >
+            Solicitar novo link
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   if (!sessionReady) {
