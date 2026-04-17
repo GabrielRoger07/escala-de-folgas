@@ -68,92 +68,141 @@ export function PdfTemplate({ escala, funcionarios, days, isFolga, workingOnDay 
       <div
         style={{
           backgroundColor: C.headerBg,
-          padding: "20px 28px 18px",
+          padding: "22px 28px 20px",
           display: "flex",
-          alignItems: "flex-end",
+          alignItems: "center",
           justifyContent: "space-between",
         }}
       >
-        <div>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
+        {/* Left — title block */}
+        <div style={{ display: "flex", alignItems: "stretch", gap: "14px" }}>
+          <div
+            style={{
+              width: "3px",
+              borderRadius: "2px",
+              background: `linear-gradient(180deg, ${C.headerAccent} 0%, #60a5fa 100%)`,
+              flexShrink: 0,
+              alignSelf: "stretch",
+            }}
+          />
+          <div>
             <div
               style={{
-                width: "4px",
-                height: "32px",
-                backgroundColor: C.headerAccent,
-                borderRadius: "2px",
-                flexShrink: 0,
+                fontSize: "7.5px",
+                fontWeight: 700,
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                color: "#475569",
+                marginBottom: "5px",
               }}
-            />
-            <div>
-              <div
-                style={{
-                  fontSize: "8px",
-                  fontWeight: 700,
-                  letterSpacing: "0.14em",
-                  textTransform: "uppercase",
-                  color: "#64748b",
-                  marginBottom: "3px",
-                }}
-              >
-                Escala de Folgas
-              </div>
-              <div
-                style={{
-                  fontSize: "22px",
-                  fontWeight: 700,
-                  color: C.headerText,
-                  letterSpacing: "-0.01em",
-                  lineHeight: 1,
-                }}
-              >
-                {escala.setores.nome_setor}
-              </div>
-              <div
-                style={{
-                  fontSize: "16px",
-                  fontWeight: 600,
-                  color: C.headerText,
-                  letterSpacing: "0.02em",
-                }}
-              >
-                {MONTH_NAMES[escala.mes - 1]} {escala.ano}
-              </div>
+            >
+              Escala de Folgas
+            </div>
+            <div
+              style={{
+                fontSize: "24px",
+                fontWeight: 800,
+                color: C.headerText,
+                letterSpacing: "-0.02em",
+                lineHeight: 1,
+                marginBottom: "4px",
+              }}
+            >
+              {escala.setores.nome_setor}
+            </div>
+            <div
+              style={{
+                fontSize: "13px",
+                fontWeight: 500,
+                color: "#94a3b8",
+                letterSpacing: "0.01em",
+              }}
+            >
+              {MONTH_NAMES[escala.mes - 1]} · {escala.ano}
             </div>
           </div>
         </div>
 
-        <div style={{ textAlign: "right" }}>
-          <div style={{ marginTop: "6px", display: "flex", gap: "8px", justifyContent: "flex-end" }}>
-            <div
+        {/* Right — KPI pills */}
+        <div style={{ display: "flex", gap: "10px", alignItems: "stretch" }}>
+          {/* Funcionários */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "3px",
+              backgroundColor: "rgba(59,130,246,0.12)",
+              border: "1px solid rgba(59,130,246,0.28)",
+              borderTop: `3px solid ${C.headerAccent}`,
+              borderRadius: "8px",
+              padding: "10px 18px",
+              minWidth: "72px",
+            }}
+          >
+            <span
               style={{
-                display: "inline-flex",
-                flexDirection: "column",
-                alignItems: "flex-end",
-                gap: "4px",
-                backgroundColor: "rgba(255,255,255,0.08)",
-                borderRadius: "10px",
-                padding: "8px 12px",
+                fontSize: "28px",
+                fontWeight: 800,
+                color: "#e2e8f0",
+                lineHeight: 1,
+                letterSpacing: "-0.03em",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <span style={{ fontSize: "8px", color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                  Funcionários
-                </span>
-                <span style={{ fontSize: "13px", color: "#f8fafc", fontWeight: 700, lineHeight: 1 }}>
-                  {funcionarios.length}
-                </span>
-              </div>
-              <div style={{ width: "100%", height: "1px", backgroundColor: "rgba(255,255,255,0.08)" }} />
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <span style={{ fontSize: "8px", color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                  Mínimo/dia
-                </span>
-                <span style={{ fontSize: "13px", color: "#f8fafc", fontWeight: 700, lineHeight: 1 }}>
-                  {minimo}
-                </span>
-              </div>
-            </div>
+              {funcionarios.length}
+            </span>
+            <span
+              style={{
+                fontSize: "7px",
+                fontWeight: 700,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "#64748b",
+              }}
+            >
+              Funcionários
+            </span>
+          </div>
+
+          {/* Mínimo/dia */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "3px",
+              backgroundColor: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderTop: "3px solid #475569",
+              borderRadius: "8px",
+              padding: "10px 18px",
+              minWidth: "72px",
+            }}
+          >
+            <span
+              style={{
+                fontSize: "28px",
+                fontWeight: 800,
+                color: "#e2e8f0",
+                lineHeight: 1,
+                letterSpacing: "-0.03em",
+              }}
+            >
+              {minimo}
+            </span>
+            <span
+              style={{
+                fontSize: "7px",
+                fontWeight: 700,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "#64748b",
+              }}
+            >
+              Mínimo/dia
+            </span>
           </div>
         </div>
       </div>
@@ -284,12 +333,9 @@ export function PdfTemplate({ escala, funcionarios, days, isFolga, workingOnDay 
                   const ds = toDateStr(day)
                   const folga = isFolga(func.id, ds)
                   const bloqueado = isDiaBloqueado(day, escala.dias_bloqueados)
-                  const isWeekend = day.getDay() === 0 || day.getDay() === 6
-
                   let cellBg: string
                   if (bloqueado) cellBg = C.blocked
                   else if (folga) cellBg = C.accentLight
-                  else if (isWeekend) cellBg = rowIndex % 2 === 0 ? "#f5f8ff" : "#eef2ff"
                   else cellBg = rowIndex % 2 === 0 ? C.bg : C.surface
 
                   return (
