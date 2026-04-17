@@ -1,6 +1,7 @@
 import {
   ArrowLeft,
   CalendarDays,
+  FileDown,
   Loader2,
   RefreshCw,
   Send,
@@ -19,6 +20,7 @@ import { ModalBase } from "@/components/shared/ModalBase"
 import { cn } from "@/lib/utils"
 import { EscalaGrid, EscalaGridSkeleton } from "./components/EscalaGrid"
 import { useEscalaDetail } from "./hooks/useEscalaDetail"
+import { useExportPdf } from "./hooks/useExportPdf"
 
 const MONTH_NAMES = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -48,6 +50,17 @@ export default function EscalaDetail() {
   const hasAnyFolga = hasEscala && funcionarios.length > 0
   const isEditable = escala?.status === "rascunho"
   const isPublished = escala?.status === "publicada"
+
+  const { isExporting, exportPdf } = useExportPdf({
+    escala,
+    funcionarios,
+    days,
+    isFolga,
+    workingOnDay,
+    filename: escala
+      ? `escala-${escala.setores.nome_setor}-${escala.mes}-${escala.ano}`
+      : "escala",
+  })
 
   return (
     <PageLayout maxWidth="max-w-full">
@@ -140,19 +153,35 @@ export default function EscalaDetail() {
               )}
 
               {isPublished && (
-                <Button
-                  variant="outline"
-                  className="h-10 gap-2 text-xs font-bold uppercase tracking-[0.06em]"
-                  onClick={togglePublish}
-                  disabled={isPublishing}
-                >
-                  {isPublishing ? (
-                    <Loader2 size={15} className="animate-spin" />
-                  ) : (
-                    <Undo2 size={15} strokeWidth={2.5} />
-                  )}
-                  Reverter para rascunho
-                </Button>
+                <>
+                  <Button
+                    variant="outline"
+                    className="h-10 gap-2 text-xs font-bold uppercase tracking-[0.06em]"
+                    onClick={togglePublish}
+                    disabled={isPublishing}
+                  >
+                    {isPublishing ? (
+                      <Loader2 size={15} className="animate-spin" />
+                    ) : (
+                      <Undo2 size={15} strokeWidth={2.5} />
+                    )}
+                    Reverter para rascunho
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    className="h-10 gap-2 text-xs font-bold uppercase tracking-[0.06em]"
+                    onClick={exportPdf}
+                    disabled={isExporting}
+                  >
+                    {isExporting ? (
+                      <Loader2 size={15} className="animate-spin" />
+                    ) : (
+                      <FileDown size={15} strokeWidth={2.5} />
+                    )}
+                    Exportar PDF
+                  </Button>
+                </>
               )}
             </div>
           )}
@@ -201,14 +230,16 @@ export default function EscalaDetail() {
         {isLoading && <EscalaGridSkeleton />}
 
         {!isLoading && escala && funcionarios.length > 0 && (
-          <EscalaGrid
-            escala={escala}
-            funcionarios={funcionarios}
-            days={days}
-            isFolga={isFolga}
-            workingOnDay={workingOnDay}
-            onToggle={toggleFolga}
-          />
+          <div>
+            <EscalaGrid
+              escala={escala}
+              funcionarios={funcionarios}
+              days={days}
+              isFolga={isFolga}
+              workingOnDay={workingOnDay}
+              onToggle={toggleFolga}
+            />
+          </div>
         )}
       </div>
 
