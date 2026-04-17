@@ -18,7 +18,7 @@ const navLinks = [
   { to: "/setores", label: "Setores", ceoOnly: false },
   { to: "/funcionarios", label: "Funcionários", ceoOnly: false },
   { to: "/escalas", label: "Escalas", ceoOnly: false },
-  { to: "/managers", label: "Managers", ceoOnly: true },
+  { to: "/managers", label: "Gerentes", ceoOnly: true },
 ]
 
 const Navbar = () => {
