@@ -18,7 +18,7 @@ export function PageLayout({ children, maxWidth = "max-w-7xl" }: PageLayoutProps
 
       <Navbar />
 
-      <div className={`relative z-10 mx-auto ${maxWidth} overflow-x-hidden px-6 py-10`}>
+      <div className={`relative z-10 mx-auto ${maxWidth} overflow-x-hidden px-6 py-10 pb-28 sm:pb-10`}>
         {children}
       </div>
 

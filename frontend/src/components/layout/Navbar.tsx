@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { NavLink, useNavigate } from "react-router-dom"
-import { LogOut, Menu, Moon, ShieldCheck, Sun, Wheat, X } from "lucide-react"
+import { CalendarDays, ChevronRight, Home, LayoutGrid, LogOut, Menu, Moon, Settings, ShieldCheck, Sun, Users, Wheat, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -10,16 +10,51 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
+import { Switch } from "@/components/ui/switch"
 import { supabase } from "@/config/supabaseClient"
 import { useTheme } from "@/hooks/useTheme"
 import { useAuth } from "@/auth/useAuth"
 
-const navLinks = [
+const desktopNavLinks = [
   { to: "/setores", label: "Setores", ceoOnly: false },
   { to: "/funcionarios", label: "Funcionários", ceoOnly: false },
   { to: "/escalas", label: "Escalas", ceoOnly: false },
   { to: "/managers", label: "Gerentes", ceoOnly: true },
 ]
+
+const bottomNavLinks = [
+  { to: "/home", label: "Home", icon: Home },
+  { to: "/setores", label: "Setores", icon: LayoutGrid },
+  { to: "/funcionarios", label: "Funcionários", icon: Users },
+  { to: "/escalas", label: "Escalas", icon: CalendarDays },
+]
+
+const ThemeToggleIcon = ({ theme }: { theme: string }) => (
+  <span className="relative flex h-4 w-4 items-center justify-center">
+    <Moon
+      size={16}
+      className={`absolute transition-all duration-300 ${
+        theme === "dark"
+          ? "rotate-0 scale-100 opacity-100"
+          : "-rotate-90 scale-0 opacity-0"
+      }`}
+    />
+    <Sun
+      size={16}
+      className={`absolute transition-all duration-300 ${
+        theme === "dark"
+          ? "rotate-90 scale-0 opacity-0"
+          : "rotate-0 scale-100 opacity-100"
+      }`}
+    />
+  </span>
+)
 
 const Navbar = () => {
   const navigate = useNavigate()
@@ -28,7 +63,10 @@ const Navbar = () => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const isCeo = userRole === "ceo"
+
+  const visibleDesktopLinks = desktopNavLinks.filter(({ ceoOnly }) => !ceoOnly || isCeo)
 
   const signOut = async () => {
     setIsLoggingOut(true)
@@ -43,7 +81,8 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-sm">
+      {/* Top header — hidden on xs (< sm), visible from sm up */}
+      <header className="hidden sm:block sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-sm">
         <div className="mx-auto grid h-14 grid-cols-2 md:grid-cols-3 items-center px-6">
 
           <div onClick={() => navigate("/home")} className="flex items-center gap-2 text-sm font-semibold text-foreground justify-self-start cursor-pointer">
@@ -52,7 +91,7 @@ const Navbar = () => {
           </div>
 
           <nav className="hidden md:flex items-center gap-1 justify-self-center cursor-pointer">
-            {navLinks.filter(({ ceoOnly }) => !ceoOnly || isCeo).map(({ to, label, ceoOnly }) => (
+            {visibleDesktopLinks.map(({ to, label, ceoOnly }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -78,24 +117,7 @@ const Navbar = () => {
               aria-label={theme === "dark" ? "Mudar para modo claro" : "Mudar para modo escuro"}
               className="h-8 w-8 text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
             >
-              <span className="relative flex h-4 w-4 items-center justify-center">
-                <Moon
-                  size={16}
-                  className={`absolute transition-all duration-300 ${
-                    theme === "dark"
-                      ? "rotate-0 scale-100 opacity-100"
-                      : "-rotate-90 scale-0 opacity-0"
-                  }`}
-                />
-                <Sun
-                  size={16}
-                  className={`absolute transition-all duration-300 ${
-                    theme === "dark"
-                      ? "rotate-90 scale-0 opacity-0"
-                      : "rotate-0 scale-100 opacity-100"
-                  }`}
-                />
-              </span>
+              <ThemeToggleIcon theme={theme} />
             </Button>
 
             <Button
@@ -109,7 +131,7 @@ const Navbar = () => {
             </Button>
           </div>
 
-          {/* Hamburger button — only on sm and below */}
+          {/* Hamburger button — sm to md */}
           <div className="flex md:hidden items-center gap-1 justify-self-end">
             <Button
               variant="ghost"
@@ -118,24 +140,7 @@ const Navbar = () => {
               aria-label={theme === "dark" ? "Mudar para modo claro" : "Mudar para modo escuro"}
               className="h-8 w-8 text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
             >
-              <span className="relative flex h-4 w-4 items-center justify-center">
-                <Moon
-                  size={16}
-                  className={`absolute transition-all duration-300 ${
-                    theme === "dark"
-                      ? "rotate-0 scale-100 opacity-100"
-                      : "-rotate-90 scale-0 opacity-0"
-                  }`}
-                />
-                <Sun
-                  size={16}
-                  className={`absolute transition-all duration-300 ${
-                    theme === "dark"
-                      ? "rotate-90 scale-0 opacity-0"
-                      : "rotate-0 scale-100 opacity-100"
-                  }`}
-                />
-              </span>
+              <ThemeToggleIcon theme={theme} />
             </Button>
             <Button
               variant="ghost"
@@ -150,10 +155,10 @@ const Navbar = () => {
 
         </div>
 
-        {/* Mobile menu */}
+        {/* Hamburger dropdown menu */}
         {menuOpen && (
           <div className="md:hidden border-t border-border/40 bg-background/95 px-6 py-3 flex flex-col gap-1">
-            {navLinks.filter(({ ceoOnly }) => !ceoOnly || isCeo).map(({ to, label, ceoOnly }) => (
+            {visibleDesktopLinks.map(({ to, label, ceoOnly }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -190,9 +195,130 @@ const Navbar = () => {
         )}
       </header>
 
+      {/* Bottom navigation bar — only on xs (< sm) */}
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border/40 bg-background/90 backdrop-blur-sm">
+        <div className="flex items-stretch h-16">
+          {bottomNavLinks.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `flex flex-1 flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors ${
+                  isActive ? "text-primary" : "text-muted-foreground"
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <span className={`flex items-center justify-center rounded-full p-1.5 transition-colors ${isActive ? "bg-primary/10" : ""}`}>
+                    <Icon size={20} strokeWidth={isActive ? 2 : 1.5} />
+                  </span>
+                  <span className="tracking-wide uppercase">{label}</span>
+                </>
+              )}
+            </NavLink>
+          ))}
+
+          <button
+            onClick={() => setSettingsOpen(true)}
+            className="flex flex-1 flex-col items-center justify-center gap-1 text-[10px] font-medium text-muted-foreground transition-colors cursor-pointer"
+          >
+            <span className="flex items-center justify-center rounded-full p-1.5">
+              <Settings size={20} strokeWidth={1.5} />
+            </span>
+            <span className="tracking-wide uppercase">Config.</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* Settings Sheet — mobile only */}
+      <Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <SheetContent
+          side="bottom"
+          className="sm:hidden rounded-t-2xl px-0 pb-8 pt-0 gap-0"
+        >
+          <div className="flex justify-center pt-3 pb-1">
+            <div className="h-1 w-10 rounded-full bg-border" />
+          </div>
+
+          <SheetHeader className="px-6 pt-3 pb-4">
+            <SheetTitle className="text-sm font-semibold tracking-tight">Configurações</SheetTitle>
+          </SheetHeader>
+
+          {/* Aparência */}
+          <div className="px-6 pb-2">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/60 mb-2">
+              Aparência
+            </p>
+            <div className="flex w-full items-center gap-3 rounded-xl px-3 py-3">
+              <span className="flex-1 text-left">
+                <span className="block text-sm font-medium text-foreground">Tema</span>
+                <span className="block text-xs text-muted-foreground">
+                  {theme === "dark" ? "Escuro" : "Claro"}
+                </span>
+              </span>
+              <div className="flex items-center gap-2">
+                <Sun size={15} className={theme === "dark" ? "text-muted-foreground/40" : "text-primary"} />
+                <Switch
+                  checked={theme === "dark"}
+                  onCheckedChange={toggle}
+                  aria-label="Alternar tema"
+                  className="data-unchecked:bg-border"
+                />
+                <Moon size={15} className={theme === "dark" ? "text-primary" : "text-muted-foreground/40"} />
+              </div>
+            </div>
+          </div>
+
+          {/* Administração — CEO only */}
+          {isCeo && (
+            <>
+              <div className="mx-6 my-3 h-px bg-border/60" />
+              <div className="px-6 pb-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/60 mb-2">
+                  Administração
+                </p>
+                <button
+                  onClick={() => { setSettingsOpen(false); navigate("/managers") }}
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-muted/60 active:bg-muted cursor-pointer"
+                >
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <ShieldCheck size={15} strokeWidth={2} />
+                  </span>
+                  <span className="flex-1 text-left">
+                    <span className="block text-sm font-medium text-foreground">Gerentes</span>
+                    <span className="block text-xs text-muted-foreground">Gerenciar contas de gerentes</span>
+                  </span>
+                  <ChevronRight size={16} className="text-muted-foreground/40" />
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* Conta */}
+          <div className="mx-6 my-3 h-px bg-border/60" />
+          <div className="px-6">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/60 mb-2">
+              Conta
+            </p>
+            <button
+              onClick={() => { setSettingsOpen(false); setShowLogoutDialog(true) }}
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-destructive/8 active:bg-destructive/12 cursor-pointer group"
+            >
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
+                <LogOut size={15} strokeWidth={2} className="translate-x-0.5" />
+              </span>
+              <span className="flex-1 text-left">
+                <span className="block text-sm font-medium text-destructive">Sair da conta</span>
+                <span className="block text-xs text-muted-foreground">Encerrar sessão atual</span>
+              </span>
+            </button>
+          </div>
+        </SheetContent>
+      </Sheet>
+
       <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
         <DialogContent className="sm:max-w-[360px] gap-0 p-0 overflow-hidden">
-          {/* Icon section */}
           <div className="flex justify-center pt-8 pb-5">
             <div className="relative flex items-center justify-center">
               <span className="absolute h-16 w-16 rounded-full bg-destructive/8 animate-ping [animation-duration:2s]" />
