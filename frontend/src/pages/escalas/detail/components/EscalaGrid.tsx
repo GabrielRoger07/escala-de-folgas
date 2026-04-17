@@ -37,7 +37,7 @@ export function EscalaGrid({
         {/* ── Column header ─────────────────────────────────────────────────── */}
         <thead>
           <tr>
-            <th className="sticky left-0 z-20 bg-card px-4 py-3 text-left">
+            <th className="sticky left-0 z-20 border-r border-border bg-card px-4 py-3 text-left">
               <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                 {MONTH_NAMES[escala.mes - 1]} {escala.ano}
               </span>
@@ -86,11 +86,11 @@ export function EscalaGrid({
                 rowIndex % 2 === 0 ? "bg-card" : "bg-muted/20",
               )}
             >
-              {/* Name cell — sticky */}
+              {/* Name cell — sticky, solid bg + right border divider */}
               <td
                 className={cn(
-                  "sticky left-0 z-10 px-4 py-0",
-                  rowIndex % 2 === 0 ? "bg-card" : "bg-muted/20",
+                  "sticky left-0 z-10 border-r border-border px-4 py-0",
+                  rowIndex % 2 === 0 ? "bg-card" : "bg-[color-mix(in_srgb,var(--color-muted)_20%,var(--color-card))]",
                 )}
               >
                 <span
@@ -157,7 +157,7 @@ export function EscalaGrid({
         {/* ── Footer: working count per day ─────────────────────────────────── */}
         <tfoot>
           <tr className="border-t-2 border-border bg-muted/30">
-            <td className="sticky left-0 z-10 bg-muted/30 px-4 py-2">
+            <td className="sticky left-0 z-10 border-r border-border bg-[color-mix(in_srgb,var(--color-muted)_30%,var(--color-card))] px-4 py-2">
               <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                 Trabalhando
               </span>
