@@ -1,0 +1,77 @@
+import "@supabase/functions-js/edge-runtime.d.ts"
+import { createClient } from "jsr:@supabase/supabase-js@2"
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders })
+  }
+
+  try {
+    const { email, redirectTo } = await req.json()
+
+    if (!email) {
+      return new Response(JSON.stringify({ error: "E-mail é obrigatório" }), { status: 400, headers: corsHeaders })
+    }
+
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    )
+
+    // Busca o usuário pelo e-mail em auth.users
+    const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers()
+
+    if (listError) {
+      return new Response(JSON.stringify({ error: "Erro interno" }), { status: 500, headers: corsHeaders })
+    }
+
+    const authUser = users.find((u) => u.email === email)
+
+    // Resposta genérica para não revelar se o e-mail existe ou não
+    if (!authUser) {
+      return new Response(JSON.stringify({ ok: true }), { status: 200, headers: corsHeaders })
+    }
+
+    // Busca o role do usuário na tabela usuarios
+    const { data: usuario, error: usuarioError } = await supabaseAdmin
+      .from("usuarios")
+      .select("user_role")
+      .eq("id", authUser.id)
+      .single()
+
+    if (usuarioError || !usuario || usuario.user_role !== "ceo") {
+      // Também resposta genérica — não revela que o usuário existe mas não é CEO
+      return new Response(JSON.stringify({ ok: true }), { status: 200, headers: corsHeaders })
+    }
+
+    console.log("oi")
+
+    console.log("valor de redirectTo: ", redirectTo)
+
+    const { error: resetError } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    })
+
+    console.log("eae")
+
+    if (resetError) {
+      console.log("entrou no if")
+      return new Response(JSON.stringify({ error: "Erro ao enviar e-mail" }), { status: 500, headers: corsHeaders })
+    }
+
+    console.log("não entrou no if")
+
+    return new Response(JSON.stringify({ ok: true }), { status: 200, headers: corsHeaders })
+
+    console.log("teste final")
+
+  } catch {
+    console.log("entrou no catch")
+    return new Response(JSON.stringify({ error: "Erro interno" }), { status: 500, headers: corsHeaders })
+  }
+})
