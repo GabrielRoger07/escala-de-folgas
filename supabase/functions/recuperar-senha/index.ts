@@ -50,18 +50,6 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ ok: true }), { status: 200, headers: corsHeaders })
     }
 
-    // Busca o role do usuário na tabela usuarios
-    const { data: usuario, error: usuarioError } = await supabaseAdmin
-      .from("usuarios")
-      .select("user_role")
-      .eq("id", authUser.id)
-      .single()
-
-    if (usuarioError || !usuario || usuario.user_role !== "ceo") {
-      // Também resposta genérica — não revela que o usuário existe mas não é CEO
-      return new Response(JSON.stringify({ ok: true }), { status: 200, headers: corsHeaders })
-    }
-
     const { error: resetError } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
       redirectTo,
     })

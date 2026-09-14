@@ -13,37 +13,33 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
-// ─── Preencha os dados do CEO aqui ───────────────────────────────────────────
+// ─── Preencha os dados do usuário aqui ──────────────────────────────────────
 
-const NOVO_CEO = {
+const NOVO_USUARIO = {
   email: '',
   password: '',
   nome: '',
-  id_empresa: '',
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 
 const { data, error } = await supabase.auth.admin.createUser({
-  email: NOVO_CEO.email,
-  password: NOVO_CEO.password,
+  email: NOVO_USUARIO.email,
+  password: NOVO_USUARIO.password,
   email_confirm: true,
   user_metadata: {
-    nome: NOVO_CEO.nome,
-    full_name: NOVO_CEO.nome,
-    id_empresa: NOVO_CEO.id_empresa,
-    user_role: 'ceo',
+    nome: NOVO_USUARIO.nome,
+    full_name: NOVO_USUARIO.nome,
   },
 })
 
 if (error) {
   console.log(error)
-  console.error('Erro ao criar CEO:', error.message)
+  console.error('Erro ao criar usuário:', error.message)
   process.exit(1)
 }
 
-console.log('CEO criado com sucesso!')
+console.log('Usuário criado com sucesso!')
 console.log('ID:', data.user.id)
-console.log('Email:', data.user.email)
+console.log('E-mail:', data.user.email)
 console.log('Nome:', data.user.user_metadata.nome)
-console.log('Empresa:', data.user.user_metadata.id_empresa)

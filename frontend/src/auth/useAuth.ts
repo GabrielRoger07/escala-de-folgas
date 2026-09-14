@@ -1,7 +1,6 @@
 import { supabase } from "@/config/supabaseClient"
 import type { Session } from "@supabase/supabase-js"
 import { useEffect, useState } from "react"
-import { isCeoSession } from "./session"
 
 export function useAuth() {
   const [session, setSession] = useState<Session | null>(null)
@@ -9,8 +8,7 @@ export function useAuth() {
 
   useEffect(() => {
     function applySession(nextSession: Session | null) {
-      const authorizedSession = isCeoSession(nextSession) ? nextSession : null
-      setSession(authorizedSession)
+      setSession(nextSession)
     }
 
     const getSession = async () => {
@@ -20,10 +18,6 @@ export function useAuth() {
 
       applySession(currentSession)
       setLoading(false)
-
-      if (currentSession && !isCeoSession(currentSession)) {
-        void supabase.auth.signOut()
-      }
     }
 
     void getSession()
