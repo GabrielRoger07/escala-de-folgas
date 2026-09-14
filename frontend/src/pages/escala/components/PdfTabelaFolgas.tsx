@@ -57,7 +57,7 @@ export function PdfTabelaFolgas({
         Período: {monthName} de {resultado.ano}
       </p>
       <p style={{ margin: "4px 0 24px", fontSize: "12px", color: "#596273" }}>
-        Data da geração: {generationDate} às {generationTime}
+        Gerado em: {generationDate} às {generationTime}
       </p>
 
       <table
