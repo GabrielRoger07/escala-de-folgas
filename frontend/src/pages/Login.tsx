@@ -9,6 +9,7 @@ import { FormField } from "@/components/layout/FormField"
 import { SectionDivider } from "@/components/layout/SectionDivider"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/auth/useAuth"
+import { isCeoSession } from "@/auth/session"
 import { useTheme } from "@/hooks/useTheme"
 
 type MessageState = { text: string; type: "error" | "success" | "" }
@@ -36,14 +37,25 @@ const Login = () => {
     setIsLoading(true)
     setMessage({ text: "", type: "" })
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    setIsLoading(false)
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
+      setIsLoading(false)
       setMessage({ text: "E-mail ou senha incorretos", type: "error" })
       return
     }
 
+    if (!isCeoSession(data.session)) {
+      await supabase.auth.signOut()
+      setIsLoading(false)
+      setMessage({
+        text: "Esta conta não tem permissão para acessar o sistema.",
+        type: "error",
+      })
+      return
+    }
+
+    setIsLoading(false)
     setMessage({ text: "Acesso autorizado!", type: "success" })
   }
 

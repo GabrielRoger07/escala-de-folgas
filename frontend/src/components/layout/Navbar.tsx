@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { NavLink, useNavigate } from "react-router-dom"
-import { CalendarDays, ChevronRight, Home, LayoutGrid, LogOut, Menu, Moon, Settings, ShieldCheck, Sun, Users, Wheat, X } from "lucide-react"
+import { CalendarClock, Home, LogOut, Menu, Moon, Settings, Sun, Wheat, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -19,20 +19,15 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { supabase } from "@/config/supabaseClient"
 import { useTheme } from "@/hooks/useTheme"
-import { useAuth } from "@/auth/useAuth"
 
 const desktopNavLinks = [
-  { to: "/setores", label: "Setores", ceoOnly: false },
-  { to: "/funcionarios", label: "Funcionários", ceoOnly: false },
-  { to: "/escalas", label: "Escalas", ceoOnly: false },
-  { to: "/managers", label: "Gerentes", ceoOnly: true },
+  { to: "/home", label: "Home" },
+  { to: "/escala", label: "Escala" },
 ]
 
 const bottomNavLinks = [
   { to: "/home", label: "Home", icon: Home },
-  { to: "/setores", label: "Setores", icon: LayoutGrid },
-  { to: "/funcionarios", label: "Funcionários", icon: Users },
-  { to: "/escalas", label: "Escalas", icon: CalendarDays },
+  { to: "/escala", label: "Escala", icon: CalendarClock },
 ]
 
 const ThemeToggleIcon = ({ theme }: { theme: string }) => (
@@ -59,15 +54,10 @@ const ThemeToggleIcon = ({ theme }: { theme: string }) => (
 const Navbar = () => {
   const navigate = useNavigate()
   const { theme, toggle } = useTheme()
-  const { userRole } = useAuth()
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const isCeo = userRole === "ceo"
-
-  const visibleDesktopLinks = desktopNavLinks.filter(({ ceoOnly }) => !ceoOnly || isCeo)
-
   const signOut = async () => {
     setIsLoggingOut(true)
     const { error } = await supabase.auth.signOut()
@@ -90,8 +80,8 @@ const Navbar = () => {
             Escala de Folgas
           </div>
 
-          <nav className="hidden md:flex items-center gap-1 justify-self-center cursor-pointer">
-            {visibleDesktopLinks.map(({ to, label, ceoOnly }) => (
+          <nav className="hidden lg:flex items-center gap-1 justify-self-center cursor-pointer">
+            {desktopNavLinks.map(({ to, label }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -103,13 +93,12 @@ const Navbar = () => {
                   }`
                 }
               >
-                {ceoOnly && <ShieldCheck size={12} className="shrink-0" strokeWidth={2} />}
                 {label}
               </NavLink>
             ))}
           </nav>
 
-          <div className="hidden md:flex items-center gap-1 justify-self-end">
+          <div className="hidden lg:flex items-center gap-1 justify-self-end">
             <Button
               variant="ghost"
               size="icon"
@@ -132,7 +121,7 @@ const Navbar = () => {
           </div>
 
           {/* Hamburger button — sm to md */}
-          <div className="flex md:hidden items-center gap-1 justify-self-end">
+          <div className="flex lg:hidden items-center gap-1 justify-self-end">
             <Button
               variant="ghost"
               size="icon"
@@ -157,8 +146,8 @@ const Navbar = () => {
 
         {/* Hamburger dropdown menu */}
         {menuOpen && (
-          <div className="md:hidden border-t border-border/40 bg-background/95 px-6 py-3 flex flex-col gap-1">
-            {visibleDesktopLinks.map(({ to, label, ceoOnly }) => (
+          <div className="lg:hidden border-t border-border/40 bg-background/95 px-6 py-3 flex flex-col gap-1">
+            {desktopNavLinks.map(({ to, label }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -171,13 +160,7 @@ const Navbar = () => {
                   }`
                 }
               >
-                {ceoOnly && <ShieldCheck size={12} className="shrink-0" strokeWidth={2} />}
                 {label}
-                {ceoOnly && (
-                  <span className="ml-auto text-[9px] font-semibold tracking-widest uppercase text-muted-foreground/60 border border-border/60 rounded px-1 py-px leading-none">
-                    CEO
-                  </span>
-                )}
               </NavLink>
             ))}
             <div className="mt-1 pt-2 border-t border-border/40">
@@ -269,31 +252,6 @@ const Navbar = () => {
               </div>
             </div>
           </div>
-
-          {/* Administração — CEO only */}
-          {isCeo && (
-            <>
-              <div className="mx-6 my-3 h-px bg-border/60" />
-              <div className="px-6 pb-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/60 mb-2">
-                  Administração
-                </p>
-                <button
-                  onClick={() => { setSettingsOpen(false); navigate("/managers") }}
-                  className="flex w-full items-center gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-muted/60 active:bg-muted cursor-pointer"
-                >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <ShieldCheck size={15} strokeWidth={2} />
-                  </span>
-                  <span className="flex-1 text-left">
-                    <span className="block text-sm font-medium text-foreground">Gerentes</span>
-                    <span className="block text-xs text-muted-foreground">Gerenciar contas de gerentes</span>
-                  </span>
-                  <ChevronRight size={16} className="text-muted-foreground/40" />
-                </button>
-              </div>
-            </>
-          )}
 
           {/* Conta */}
           <div className="mx-6 my-3 h-px bg-border/60" />

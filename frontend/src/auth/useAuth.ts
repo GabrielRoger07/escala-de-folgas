@@ -1,35 +1,41 @@
-import { supabase } from "@/config/supabaseClient";
-import type { UserRole } from "@/types/database";
-import type { Session } from "@supabase/supabase-js";
-import { useEffect, useState } from "react";
+import { supabase } from "@/config/supabaseClient"
+import type { Session } from "@supabase/supabase-js"
+import { useEffect, useState } from "react"
+import { isCeoSession } from "./session"
 
 export function useAuth() {
-    const [session, setSession] = useState<Session | null>(null)
-    const [userRole, setUserRole] = useState<UserRole | null>(null)
-    const [idEmpresa, setIdEmpresa] = useState<string | null>(null)
-    const [loading, setLoading] = useState(true)
+  const [session, setSession] = useState<Session | null>(null)
+  const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
-        const getSession = async () => {
-            const { data: {session} } = await supabase.auth.getSession()
-            setSession(session)
-            setUserRole((session?.user.user_metadata.user_role as UserRole) ?? null)
-            setIdEmpresa((session?.user.user_metadata.id_empresa as string) ?? null)
-            setLoading(false)
-        }
+  useEffect(() => {
+    function applySession(nextSession: Session | null) {
+      const authorizedSession = isCeoSession(nextSession) ? nextSession : null
+      setSession(authorizedSession)
+    }
 
-        getSession()
+    const getSession = async () => {
+      const {
+        data: { session: currentSession },
+      } = await supabase.auth.getSession()
 
-        const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session)
-            setUserRole((session?.user.user_metadata.user_role as UserRole) ?? null)
-            setIdEmpresa((session?.user.user_metadata.id_empresa as string) ?? null)
-        })
+      applySession(currentSession)
+      setLoading(false)
 
-        return () => {
-            data.subscription.unsubscribe()
-        }
+      if (currentSession && !isCeoSession(currentSession)) {
+        void supabase.auth.signOut()
+      }
+    }
+
+    void getSession()
+
+    const { data } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      applySession(nextSession)
+    })
+
+    return () => {
+      data.subscription.unsubscribe()
+    }
   }, [])
 
-  return { session, userRole, idEmpresa, loading }
+  return { session, loading }
 }
