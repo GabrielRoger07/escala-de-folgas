@@ -79,7 +79,11 @@ export default function Escala() {
   const formularioValido =
     nomeSetor.trim().length > 0 &&
     funcionarios.length > 0 &&
-    funcionarios.every((funcionario) => funcionario.nome.trim().length > 0)
+    funcionarios.every(
+      (funcionario) =>
+        funcionario.nome.trim().length > 0 &&
+        isUltimaFolgaValida(funcionario.ultimaFolga, periodoAnterior.inicio, periodoAnterior.fim),
+    )
 
   const payload = useMemo(
     () =>
@@ -222,7 +226,7 @@ export default function Escala() {
                     className={cn(
                       "flex h-9 w-full cursor-pointer items-center justify-center rounded-lg border text-xs font-semibold transition-colors",
                       active
-                        ? "border-primary/40 bg-primary/15 text-primary"
+                        ? "border-primary/40 bg-primary/15 text-primary hover:border-primary/60 hover:bg-primary/25"
                         : "border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground",
                     )}
                   >
@@ -275,12 +279,12 @@ export default function Escala() {
                 </p>
               )}
 
-              <div className="border-t border-border/60 px-3 py-2.5 sm:px-4">
+              <div className="border-t border-border/60 py-2.5 min-[480px]:px-3 sm:px-4">
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   onClick={addFuncionario}
-                  className="h-9 w-full justify-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
+                  className="h-10 w-full justify-center gap-2 border-border bg-background/70 text-xs font-semibold text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-foreground"
                 >
                   <Plus size={15} />
                   Adicionar funcionário
@@ -404,4 +408,10 @@ function createFuncionarioEscala(): FuncionarioEscala {
     nome: "",
     ultimaFolga: "",
   }
+}
+
+function isUltimaFolgaValida(value: string, dataMinima: string, dataMaxima: string) {
+  if (!value) return true
+
+  return /^\d{4}-\d{2}-\d{2}$/.test(value) && value >= dataMinima && value <= dataMaxima
 }

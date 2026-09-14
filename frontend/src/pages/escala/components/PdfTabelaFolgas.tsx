@@ -25,11 +25,16 @@ export function PdfTabelaFolgas({
   const monthName = new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(
     new Date(2000, resultado.mes - 1, 1),
   )
+  const generationMoment = new Date(resultado.geradoEm)
   const generationDate = new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
-  }).format(new Date())
+  }).format(generationMoment)
+  const generationTime = new Intl.DateTimeFormat("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(generationMoment)
   const width = Math.max(560, 64 + resultado.funcionarios.length * 156)
 
   return (
@@ -52,7 +57,7 @@ export function PdfTabelaFolgas({
         Período: {monthName} de {resultado.ano}
       </p>
       <p style={{ margin: "4px 0 24px", fontSize: "12px", color: "#596273" }}>
-        Data da geração: {generationDate}
+        Data da geração: {generationDate} às {generationTime}
       </p>
 
       <table

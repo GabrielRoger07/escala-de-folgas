@@ -12,6 +12,7 @@ export type EscalaGerada = {
   nomeSetor: string
   mes: number
   ano: number
+  geradoEm: string
   funcionarios: Array<{
     id: string
     nome: string
@@ -19,7 +20,7 @@ export type EscalaGerada = {
   folgas: FolgaEscala[]
 }
 
-type GeracaoInput = Omit<EscalaGerada, "folgas">
+type GeracaoInput = Omit<EscalaGerada, "folgas" | "geradoEm">
 
 type GerarResponse = {
   ok: boolean
@@ -67,7 +68,7 @@ export function useGeracaoEscala() {
           throw new Error("O solver não retornou folgas para a escala.")
         }
 
-        setResultado({ ...input, folgas: data.folgas })
+        setResultado({ ...input, folgas: data.folgas, geradoEm: new Date().toISOString() })
         showFeedback("Escala gerada com sucesso.", "success")
       } catch (error) {
         showFeedback(
