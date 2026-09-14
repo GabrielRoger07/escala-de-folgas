@@ -73,14 +73,14 @@ const Navbar = () => {
     <>
       {/* Top header — hidden on xs (< sm), visible from sm up */}
       <header className="hidden sm:block sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-sm">
-        <div className="mx-auto grid h-14 grid-cols-2 md:grid-cols-3 items-center px-6">
+        <div className="mx-auto grid h-14 grid-cols-2 sm:grid-cols-3 items-center px-6">
 
           <div onClick={() => navigate("/home")} className="flex items-center gap-2 text-sm font-semibold text-foreground justify-self-start cursor-pointer">
             <Wheat size={18} className="text-primary" strokeWidth={1.5} />
             Escala de Folgas
           </div>
 
-          <nav className="hidden lg:flex items-center gap-1 justify-self-center cursor-pointer">
+          <nav className="hidden sm:flex items-center gap-1 justify-self-center cursor-pointer">
             {desktopNavLinks.map(({ to, label }) => (
               <NavLink
                 key={to}
@@ -98,7 +98,7 @@ const Navbar = () => {
             ))}
           </nav>
 
-          <div className="hidden lg:flex items-center gap-1 justify-self-end">
+          <div className="hidden sm:flex items-center gap-1 justify-self-end">
             <Button
               variant="ghost"
               size="icon"
@@ -119,29 +119,6 @@ const Navbar = () => {
               Sair
             </Button>
           </div>
-
-          {/* Hamburger button — sm to md */}
-          <div className="flex lg:hidden items-center gap-1 justify-self-end">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggle}
-              aria-label={theme === "dark" ? "Mudar para modo claro" : "Mudar para modo escuro"}
-              className="h-8 w-8 text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
-            >
-              <ThemeToggleIcon theme={theme} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMenuOpen((v) => !v)}
-              aria-label="Abrir menu"
-              className="h-8 w-8 text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
-            >
-              {menuOpen ? <X size={18} /> : <Menu size={18} />}
-            </Button>
-          </div>
-
         </div>
 
         {/* Hamburger dropdown menu */}

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { AlertTriangle, CalendarClock, CalendarPlus, FileDown, Loader2, Plus, Sparkles, UsersRound } from "lucide-react"
+import { AlertTriangle, CalendarClock, CalendarPlus, FileDown, Loader2, Plus, Sparkles } from "lucide-react"
 import { PageHeader } from "@/components/layout/PageHeader"
 import { PageLayout } from "@/components/layout/PageLayout"
 import { FormField } from "@/components/layout/FormField"
@@ -158,7 +158,7 @@ export default function Escala() {
       <PageHeader
         icon={<CalendarClock size={24} className="text-primary" strokeWidth={1.5} />}
         title="Escala"
-        subtitle="Informe os dados iniciais da escala"
+        subtitle="Informe os dados da escala"
       />
 
       <FeedbackBanner feedback={exportFeedback ?? feedback} />
@@ -220,7 +220,7 @@ export default function Escala() {
                     aria-pressed={active}
                     onClick={() => toggleDia(value)}
                     className={cn(
-                      "flex h-9 w-full items-center justify-center rounded-lg border text-xs font-semibold transition-colors",
+                      "flex h-9 w-full cursor-pointer items-center justify-center rounded-lg border text-xs font-semibold transition-colors",
                       active
                         ? "border-primary/40 bg-primary/15 text-primary"
                         : "border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground",
@@ -233,27 +233,24 @@ export default function Escala() {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-border/70 bg-background/40">
-            <div className="flex items-start gap-2.5 px-4 py-3.5 sm:px-5">
-              <UsersRound size={18} className="mt-0.5 shrink-0 text-primary" strokeWidth={1.75} />
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-sm font-semibold text-foreground">Funcionários</h2>
-                  <span className="rounded-full bg-muted px-1.5 py-0.5 text-[0.625rem] font-semibold tabular-nums text-muted-foreground">
-                    {funcionarios.length}
-                  </span>
-                </div>
-                <p
-                  id="periodo-anterior-escala"
-                  className="mt-0.5 text-xs leading-relaxed text-muted-foreground"
-                >
-                  Última folga referente a {periodoAnterior.rotulo}.
-                </p>
+          <div className="border-t border-border/60 pt-5">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h2 className="text-xs font-semibold text-foreground">Funcionários</h2>
+                <span className="rounded-full bg-muted px-1.5 py-0.5 text-[0.625rem] font-semibold tabular-nums text-muted-foreground">
+                  {funcionarios.length}
+                </span>
               </div>
+              <p
+                id="periodo-anterior-escala"
+                className="mt-1 text-[0.6875rem] leading-relaxed text-muted-foreground"
+              >
+                Informe a última folga registrada em {periodoAnterior.rotulo}.
+              </p>
             </div>
 
-            <div className="border-t border-border/60">
-              <div className="hidden grid-cols-[2rem_minmax(0,1fr)_minmax(9rem,0.55fr)_2.5rem] items-center gap-3 px-3 pb-1 pt-3 text-[0.625rem] font-semibold uppercase tracking-[0.09em] text-muted-foreground min-[480px]:grid sm:px-4">
+            <div className="mt-4">
+              <div className="hidden grid-cols-[1.5rem_minmax(0,1fr)_minmax(9rem,0.55fr)_2.5rem] items-center gap-3 px-3 pb-1 pt-3 text-[0.625rem] font-semibold uppercase tracking-[0.09em] text-muted-foreground min-[480px]:grid sm:px-4">
                 <span aria-hidden="true" />
                 <span>Nome</span>
                 <span>Última folga (opcional)</span>
@@ -296,7 +293,7 @@ export default function Escala() {
             type="submit"
             size="lg"
             disabled={!formularioValido || isGenerating}
-            className="h-11 w-full gap-2 text-xs font-bold uppercase tracking-[0.06em]"
+            className="h-11 w-full gap-2 text-xs font-bold uppercase tracking-[0.06em] disabled:pointer-events-auto disabled:cursor-not-allowed"
           >
             {isGenerating ? (
               <Loader2 size={16} className="animate-spin" />
@@ -328,7 +325,7 @@ export default function Escala() {
               <Button
                 type="button"
                 variant="outline"
-                className="h-10 gap-2 text-xs font-bold uppercase tracking-[0.06em]"
+                className="h-10 gap-2 text-xs font-bold uppercase tracking-[0.06em] disabled:pointer-events-auto disabled:cursor-not-allowed"
                 disabled={isExporting}
                 onClick={() => {
                   if (resultadoDesatualizado) {
@@ -349,15 +346,6 @@ export default function Escala() {
           </div>
 
           <TabelaFolgas resultado={resultado} />
-
-          <details className="rounded-xl border border-border/70 bg-card">
-            <summary className="cursor-pointer px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-              Ver payload enviado
-            </summary>
-            <pre className="max-h-96 overflow-auto border-t border-border/60 p-4 text-xs leading-relaxed text-muted-foreground">
-              {JSON.stringify(resultado.payload, null, 2)}
-            </pre>
-          </details>
         </section>
       )}
 
@@ -384,6 +372,7 @@ export default function Escala() {
                 variant="outline"
                 onClick={() => setMostrarConfirmacaoDownload(false)}
                 disabled={isExporting}
+                className="disabled:pointer-events-auto disabled:cursor-not-allowed"
               >
                 Cancelar
               </Button>
@@ -391,6 +380,7 @@ export default function Escala() {
                 type="button"
                 onClick={() => void handleConfirmarDownload()}
                 disabled={isExporting}
+                className="disabled:pointer-events-auto disabled:cursor-not-allowed"
               >
                 {isExporting && <Loader2 size={15} className="mr-2 animate-spin" />}
                 Baixar mesmo assim

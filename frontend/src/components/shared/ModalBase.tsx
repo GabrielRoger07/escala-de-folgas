@@ -22,7 +22,7 @@ export function ModalBase({ onClose, children, maxWidth = "max-w-md" }: ModalBas
       <div className={`animate-fade-up relative z-10 w-full ${maxWidth} rounded-2xl border border-border bg-card p-8 shadow-2xl`}>
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-muted-foreground transition-all hover:border-border hover:bg-accent hover:text-foreground"
+          className="absolute right-4 top-4 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-transparent text-muted-foreground transition-all hover:border-border hover:bg-accent hover:text-foreground"
           aria-label="Fechar"
         >
           <X size={16} strokeWidth={1.75} />
