@@ -1,301 +1,350 @@
 # CLAUDE.md — Escala de Folgas
 
-Contexto completo do projeto para uso em novas sessões.
+Contexto técnico do sistema para agentes que trabalham neste repositório.
 
 ---
 
-## Sobre o projeto
+## Visão geral
 
-Sistema web para **geração automática de escala de folgas** de uma padaria. O sistema é usado exclusivamente pelo dono e pelos gerentes — funcionários não têm acesso.
+O projeto gera escalas mensais de folgas para uma empresa. O usuário informa um setor apenas como identificação, escolhe o mês e o ano, define os dias da semana em que ninguém poderá folgar e adiciona os funcionários pelo nome. Os funcionários e a escala existem somente na memória do navegador.
 
-Regras de negócio principais:
-- Nenhum funcionário pode trabalhar mais de **6 dias consecutivos** (regra central do algoritmo)
-- Cada setor tem um **mínimo de funcionários trabalhando por dia** (`minimo_por_dia`)
-- A escala é gerada por **setor** e por **mês** separadamente
-- A escala tem status `rascunho` (gerada, em revisão) ou `publicada` (confirmada)
-- Dias bloqueados (`dias_bloqueados`) em uma escala impedem qualquer folga naquele dia da semana
+O frontend monta o período e o histórico, envia o problema ao solver FastAPI e apresenta as folgas retornadas em uma tabela. O resultado pode ser baixado em PDF.
 
----
+Não existem perfis ou níveis de permissão. Qualquer sessão válida do Supabase Auth pode acessar as páginas protegidas.
 
-## Stack
+## Limites do domínio
 
-- **Frontend:** React 19 + TypeScript + Vite
-- **Roteamento:** React Router DOM v7
-- **BaaS:** Supabase (Auth + PostgreSQL)
-- **UI:** shadcn/ui (estilo `radix-nova`, cor base `neutral`)
-- **Estilização:** Tailwind CSS v4 (via plugin `@tailwindcss/vite`)
-- **Ícones:** Lucide React (instalado pelo shadcn)
-- **Dev server:** porta 3000
+- `Usuário`: conta autenticada pelo Supabase Auth, sem papel ou perfil.
+- `Funcionário da escala`: registro local com UUID, nome e última folga opcional. Não corresponde a uma linha do banco.
+- `Setor`: texto livre usado para identificar a escala na interface e no PDF. Não integra o payload do solver.
+- `Escala`: resultado temporário retornado pelo FastAPI. Não é salva, publicada nem editada.
+- `Dia sem folga`: dia da semana, de segunda a sábado, em que o solver deve manter todos trabalhando.
+- `Última folga`: data opcional do mês imediatamente anterior ao período escolhido, usada para calcular o histórico de dias consecutivos.
 
 ---
 
-## Estrutura de pastas
+## Arquitetura e stack
 
-```
-src/
-  auth/
-    ProtectedRoute.tsx       ← Guard de rota (protege rotas autenticadas)
-    useAuth.ts               ← Hook de sessão: { session, loading } + onAuthStateChange
-  components/
-    layout/
-      Navbar.tsx             ← Navbar com botão de logout e toggle de tema
-      FormField.tsx          ← Campo de formulário reutilizável (Label + Input)
-      PageHeader.tsx         ← Cabeçalho padrão de página (ícone + título + subtítulo + ação)
-      PageLayout.tsx         ← Wrapper de página: bg, gradientes decorativos, Navbar, container
-      SectionDivider.tsx     ← Divisor decorativo (linha + ponto + linha)
-      SelectField.tsx        ← Campo de select reutilizável (Label + Select)
-    shared/
-      DeleteConfirmModal.tsx ← Modal genérico de confirmação de exclusão
-      EmptyState.tsx         ← Estado vazio padrão (ícone + título + descrição + ação opcional)
-      FeedbackBanner.tsx     ← Banner inline de sucesso/erro (usa FeedbackMessage)
-      ModalBase.tsx          ← Base reutilizável para modais (backdrop + fechar)
-    ui/                      ← Componentes shadcn (não editar manualmente):
-                               button, dialog, input, label, select
-  config/
-    supabaseClient.ts        ← Inicialização do cliente Supabase
-  context/
-    ThemeContext.tsx         ← Provider de tema (light/dark, persiste em localStorage)
-    themeContextDef.ts       ← Definição do ThemeContext (evita dependência circular)
-  hooks/
-    useFeedback.ts           ← Hook de feedback inline: { feedback, showFeedback }
-    useTheme.ts              ← Hook para consumir ThemeContext
-  lib/
-    utils.ts                 ← Utilitário cn() do shadcn (merge de classes Tailwind)
-  pages/
-    Login.tsx                ← Página de login
-    Home.tsx                 ← Página principal (protegida)
-    setores/
-      components/
-        SetorCard.tsx        ← Card de exibição de um setor (com skeleton)
-        SetorModal.tsx       ← Modal de criação/edição de setor
-        DeleteConfirm.tsx    ← Dialog de confirmação de exclusão (legado, ver shared/)
-      hooks/
-        useSetores.ts        ← Hook com toda a lógica de estado e mutations de setores
-      index.tsx              ← Página de listagem de setores
-    funcionarios/
-      components/
-        FuncionarioCard.tsx  ← Card de exibição de funcionário (com skeleton)
-        FuncionarioModal.tsx ← Modal de criação/edição de funcionário
-        DeleteConfirm.tsx    ← Dialog de confirmação local
-      hooks/
-        useFuncionarios.ts   ← Hook com lógica de estado e mutations de funcionários
-      index.tsx              ← Página de listagem de funcionários (com filtros setor/ativo)
-    escalas/
-      components/
-        EscalaCard.tsx       ← Card de exibição de escala (com skeleton)
-        EscalaModal.tsx      ← Modal de criação/edição de escala
-      hooks/
-        useEscalas.ts        ← Hook de listagem e mutations de escalas (com filtros)
-      index.tsx              ← Página de listagem de escalas
-      detail/
+### Frontend
+
+- React 19, TypeScript e Vite.
+- React Router DOM v7.
+- Tailwind CSS v4 com `@tailwindcss/vite`.
+- Componentes shadcn/ui no estilo `radix-nova`.
+- Lucide React para ícones.
+- Supabase JS somente para autenticação e recuperação de senha.
+- `html-to-image` e `jsPDF` para exportação no navegador.
+
+### Backend
+
+- Python 3.14 no contêiner.
+- FastAPI e Pydantic.
+- OR-Tools CP-SAT para modelagem e resolução.
+- Uvicorn na porta 8000.
+- CORS configurado por `ALLOWED_ORIGINS`.
+
+### Supabase
+
+O Supabase não armazena dados da escala. O projeto usa:
+
+- Supabase Auth para login, sessão, logout e redefinição de senha;
+- a Edge Function `recuperar-senha` para iniciar a recuperação sem revelar se o e-mail existe;
+- o script administrativo `scripts/create-user.js` para criar contas sem perfil para uma empresa.
+
+---
+
+## Estrutura atual
+
+```text
+backend/
+  Dockerfile
+  main.py
+  requirements.txt
+
+frontend/
+  src/
+    auth/
+      ProtectedRoute.tsx
+      useAuth.ts
+    components/
+      layout/
+      shared/
+      ui/
+    config/
+      supabaseClient.ts
+    context/
+      ThemeContext.tsx
+      themeContextDef.ts
+    hooks/
+      useFeedback.ts
+      useTheme.ts
+    pages/
+      Login.tsx
+      ForgotPassword.tsx
+      ResetPassword.tsx
+      Home.tsx
+      escala/
         components/
-          EscalaGrid.tsx     ← Grid funcionário × dia com células clicáveis
+          FuncionarioEscalaRow.tsx
+          TabelaFolgas.tsx
+          PdfTabelaFolgas.tsx
         hooks/
-          useEscalaDetail.ts ← Hook de detalhe: fetch, algoritmo, toggleFolga, publicar
-        index.tsx            ← Página de detalhe da escala (gerar, visualizar, publicar)
-  styles/
-    index.css                ← CSS global (Tailwind + variáveis de tema)
-  types/
-    database.ts              ← Tipos TypeScript de todas as entidades (Row/Insert/Update)
-  App.tsx                    ← Roteamento principal + ThemeProvider
-  main.tsx                   ← Entry point
+          useGeracaoEscala.ts
+          useExportEscalaPdf.ts
+        index.tsx
+        utils.ts
+    styles/
+      index.css
+    App.tsx
+    main.tsx
+
+scripts/
+  create-user.js
+
+supabase/
+  functions/
+    recuperar-senha/
+      index.ts
 ```
 
-### Convenção de organização por feature (pages/)
-
-Cada feature de página segue a estrutura:
-```
-pages/<feature>/
-  components/   ← componentes usados apenas por esta página
-  hooks/        ← hooks de estado/lógica usados apenas por esta página
-  index.tsx     ← o componente de página em si (rota)
-```
-
-Componentes compartilhados entre páginas ficam em `src/components/shared/` ou `src/components/layout/`.
+A feature de escala segue a organização `pages/<feature>/components`, `hooks`, `utils.ts` e `index.tsx`. Componentes reutilizados fora da feature ficam em `components/layout` ou `components/shared`.
 
 ---
 
-## Rotas
+## Rotas e autenticação
 
-| Path | Componente | Protegida |
+| Rota | Acesso | Função |
 |---|---|---|
-| `/` | Login | Não |
-| `/home` | Home + ProtectedRoute | Sim |
-| `/setores` | Setores + ProtectedRoute | Sim |
-| `/funcionarios` | Funcionarios + ProtectedRoute | Sim |
-| `/escalas` | Escalas + ProtectedRoute | Sim |
-| `/escalas/:id` | EscalaDetail + ProtectedRoute | Sim |
+| `/login` | Pública | Autenticação por e-mail e senha |
+| `/forgot-password` | Pública | Solicitação do link de redefinição |
+| `/reset-password` | Pública | Definição de nova senha |
+| `/home` | Protegida | Apresentação do fluxo e acesso à escala |
+| `/escala` | Protegida | Formulário, geração, resultado e PDF |
+
+Qualquer rota desconhecida redireciona para `/home`. Caso não exista uma sessão válida, `ProtectedRoute` redireciona para `/login`.
+
+O `useAuth` carrega a sessão com `supabase.auth.getSession()` e acompanha alterações com `supabase.auth.onAuthStateChange()`. Não consulte `user_role`, `id_empresa` ou a tabela `usuarios` para autorizar o acesso.
 
 ---
 
-## shadcn/ui e Tailwind
+## Fluxo da escala
 
-### Configuração (`components.json`)
+1. A página começa com o mês e o ano atuais e uma linha vazia de funcionário.
+2. O usuário informa setor, período, dias sem folga e funcionários.
+3. Cada funcionário recebe um UUID gerado por `crypto.randomUUID()`. Esse UUID relaciona o nome local às folgas retornadas.
+4. A última folga aceita somente datas do mês anterior ao período escolhido.
+5. Ao mudar o período, nomes são preservados e datas que saíram do novo intervalo são apagadas.
+6. O formulário exige setor, pelo menos um funcionário e nome em todas as linhas. Nomes duplicados são permitidos.
+7. O frontend envia o payload para `${VITE_SOLVER_URL}/gerar`.
+8. Em caso de sucesso, a tabela agrupa e ordena as folgas por UUID.
+9. O resultado guarda um instantâneo do payload, setor, período e nomes usados na requisição.
+10. Se o payload mudar, a tela marca o resultado como desatualizado. Alterar apenas o setor ou o texto do nome não exige nova execução do solver.
+11. O PDF representa o instantâneo do resultado. Se ele estiver desatualizado, a interface pede confirmação antes do download.
+12. Recarregar ou abandonar a página descarta formulário e resultado.
 
-- **Estilo:** `radix-nova`
-- **Cor base:** `neutral`
-- **CSS variables:** habilitado
-- **CSS entry:** `src/index.css`
-- **Ícones:** `lucide`
+Não há chamadas ao Supabase durante esse fluxo.
 
-### Aliases configurados
+---
 
-| Alias | Caminho |
-|---|---|
-| `@/components` | `src/components` |
-| `@/components/ui` | `src/components/ui` |
-| `@/lib` | `src/lib` |
-| `@/hooks` | `src/hooks` |
+## Contrato do solver
 
-### Como adicionar componentes
+### Requisição
 
-```bash
-npx shadcn@latest add <componente>
-# Exemplos:
-npx shadcn@latest add button
-npx shadcn@latest add input
-npx shadcn@latest add table
-npx shadcn@latest add dialog
-npx shadcn@latest add select
-```
+`POST /gerar`
 
-Componentes são copiados para `src/components/ui/` e importados como:
 ```ts
-import { Button } from '@/components/ui/button'
+type GerarRequestPayload = {
+  funcionarios: string[]
+  days: string[]
+  quantidadeDiasConsecutivos: number
+  prevConsecutive: Record<string, number>
+  diasBloqueados: Array<"seg" | "ter" | "qua" | "qui" | "sex" | "sab">
+}
 ```
 
-### Tailwind v4
+- `funcionarios`: UUIDs locais, na ordem visual.
+- `days`: todas as datas do mês em `YYYY-MM-DD`.
+- `quantidadeDiasConsecutivos`: valor enviado atualmente como `6`.
+- `prevConsecutive`: dias trabalhados após a última folga até o fim do mês anterior, limitados ao intervalo de 0 a 6. Sem data informada, o valor é 0.
+- `diasBloqueados`: dias da semana escolhidos na interface.
 
-- Instalado via plugin Vite (`@tailwindcss/vite`) — sem `tailwind.config.js`
-- Configuração feita diretamente no `src/index.css` via `@import "tailwindcss"`
-- O alias `@` aponta para `src/` (configurado em `vite.config.ts` e `tsconfig.app.json`)
+### Resposta
+
+```ts
+type GerarResponse = {
+  ok: boolean
+  folgas: Array<{
+    id_funcionario: string
+    data: string
+  }>
+  error?: string | null
+}
+```
+
+O frontend trata como erro respostas HTTP malsucedidas, objetos fora desse contrato, `ok: false` e sucessos sem folgas. Uma tentativa que falha não apaga o resultado anterior.
 
 ---
 
-## Supabase
+## Regras atuais do solver
 
-### Variáveis de ambiente (`.env`)
+Restrições obrigatórias:
 
+- ninguém folga nos dias da semana bloqueados;
+- nenhuma sequência pode conter oito dias consecutivos de trabalho, portanto o limite rígido atual é sete;
+- o histórico do mês anterior participa da restrição do início do período;
+- cada funcionário recebe exatamente um domingo de folga;
+- as folgas de domingo são distribuídas de forma equilibrada;
+- um funcionário não recebe folgas em dias consecutivos;
+- cada funcionário recebe quatro ou cinco folgas no mês.
+
+Objetivos de otimização:
+
+- equilibrar a quantidade de trabalho entre os funcionários;
+- preferir quatro folgas quando cinco não forem necessárias;
+- evitar várias folgas no mesmo dia;
+- aumentar o espaçamento entre as folgas;
+- penalizar sequências de sete dias trabalhados;
+- favorecer uma folga após seis dias consecutivos.
+
+O valor `quantidadeDiasConsecutivos: 6` orienta o objetivo de espaçamento. A restrição rígida implementada em `backend/main.py` proíbe oito dias seguidos e ainda permite sete. Não documente o valor 6 como limite rígido enquanto o modelo permanecer assim.
+
+O solver usa até 30 segundos e oito workers. Quando não encontra solução viável, responde com `ok: false` e uma mensagem em `error`.
+
+---
+
+## Resultado e PDF
+
+A tabela de resultado:
+
+- mantém a ordem original dos funcionários;
+- usa uma coluna por UUID, inclusive quando os nomes se repetem;
+- ordena as folgas cronologicamente;
+- formata cada data como `DD/MM - DDD`;
+- preenche com `—` as células sem folga correspondente.
+
+O PDF é gerado inteiramente no navegador. O hook renderiza uma versão própria da tabela fora da área visível, converte o HTML em PNG e cria uma página de tamanho personalizado com o jsPDF. O arquivo segue o padrão:
+
+```text
+escala-<setor-normalizado>-<mes>-<ano>.pdf
 ```
+
+Não inclua no PDF o payload, controles da interface ou avisos de desatualização.
+
+---
+
+## Variáveis de ambiente
+
+### Raiz, usada pelo Docker Compose
+
+```dotenv
+ALLOWED_ORIGINS=http://localhost:3000
+```
+
+### `frontend/.env`
+
+```dotenv
 VITE_SUPABASE_URL=...
 VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY=...
+VITE_SOLVER_URL=http://localhost:8000
+VITE_SITE_URL=http://localhost:3000
 ```
 
-### Cliente (`src/config/supabaseClient.ts`)
+### `scripts/.env`
 
-```ts
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY
-
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Supabase env vars are missing. Check your .env file.')
-}
-
-export const supabase = createClient(supabaseUrl, supabaseKey)
+```dotenv
+SUPABASE_URL=...
+SUPABASE_SERVICE_ROLE_KEY=...
 ```
 
-### Auth flow
+Nunca exponha `SUPABASE_SERVICE_ROLE_KEY` no frontend nem em variáveis prefixadas com `VITE_`.
 
-- Login: `supabase.auth.signInWithPassword()`
-- Logout: `supabase.auth.signOut()`
-- Verificação de sessão: `supabase.auth.getSession()`
-- Reatividade de sessão: `supabase.auth.onAuthStateChange()` (em `useAuth.ts`)
-- JWT armazenado automaticamente no localStorage pelo SDK
-- O SDK renova o token automaticamente
+A Edge Function usa `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` e `ALLOWED_ORIGINS` no ambiente do Supabase.
 
 ---
 
-## Banco de dados
+## Execução local
 
-### Schema completo
+### Backend com Docker
 
-```sql
-CREATE TABLE setores (
-  id             uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  nome_setor     text NOT NULL,
-  minimo_por_dia int  NOT NULL DEFAULT 1,
-  created_at     timestamptz DEFAULT now()
-);
+Na raiz do repositório:
 
-CREATE TABLE funcionarios (
-  id                uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  nome_funcionario  text NOT NULL,
-  id_setor          uuid NOT NULL REFERENCES setores(id),
-  ativo             boolean NOT NULL DEFAULT true,
-  created_at        timestamptz DEFAULT now()
-);
-
-CREATE TABLE escalas (
-  id               uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  id_setor         uuid NOT NULL REFERENCES setores(id),
-  mes              int  NOT NULL CHECK (mes BETWEEN 1 AND 12),
-  ano              int  NOT NULL CHECK (ano >= 2024),
-  status           text NOT NULL DEFAULT 'rascunho' CHECK (status IN ('rascunho', 'publicada')),
-  dias_bloqueados  text[] NOT NULL DEFAULT '{}',
-  created_at       timestamptz DEFAULT now(),
-  UNIQUE (id_setor, mes, ano)
-);
-
-CREATE TABLE folgas (
-  id             uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  id_funcionario uuid NOT NULL REFERENCES funcionarios(id),
-  id_escala      uuid NOT NULL REFERENCES escalas(id) ON DELETE CASCADE,
-  data           date NOT NULL,
-  created_at     timestamptz DEFAULT now(),
-  UNIQUE (id_funcionario, data)
-);
+```bash
+docker compose up --build
 ```
 
-### Relacionamentos
+A API fica disponível em `http://localhost:8000`. Para encerrar:
 
-```
-setores ──1:N──▶ funcionarios
-setores ──1:N──▶ escalas
-funcionarios ──1:N──▶ folgas
-escalas ──1:N──▶ folgas (ON DELETE CASCADE)
+```bash
+docker compose down
 ```
 
-### Observações importantes
+### Backend sem Docker
 
-- `ON DELETE CASCADE` em `folgas.id_escala`: deletar uma escala deleta todas as folgas vinculadas
-- `UNIQUE (id_funcionario, data)` em folgas: impede duas folgas no mesmo dia para o mesmo funcionário
-- `UNIQUE (id_setor, mes, ano)` em escalas: só existe uma escala por setor por mês
-- `dias_bloqueados` em escalas: array de dias da semana (`'seg'|'ter'|'qua'|'qui'|'sex'|'sab'`) nos quais ninguém pode ter folga
-- `minimo_por_dia` em setores: o algoritmo e o toggle manual verificam esse mínimo antes de atribuir folga
-- Funcionários inativos (`ativo = false`) não entram na geração da escala
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+```
 
-### RLS
+### Frontend
 
-- Ainda não configurada — próxima etapa pendente
-- Como só gestores acessam o sistema, as policies serão simples: qualquer usuário autenticado tem acesso total a todas as tabelas
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-### Trigger existente
+O Vite usa `http://localhost:3000`.
 
-Trigger no Supabase que popula `profiles` automaticamente quando um usuário é criado em `auth.users`.
+### Script de criação de usuário
+
+Preencha `NOVO_USUARIO` em `scripts/create-user.js` e execute:
+
+```bash
+cd scripts
+npm install
+node create-user.js
+```
+
+O script usa a service role e deve permanecer fora do código enviado ao navegador.
 
 ---
 
-## Algoritmo de geração de escala
+## Convenções de implementação
 
-Implementado em `src/pages/escalas/detail/hooks/useEscalaDetail.ts` na função `generateFolgas`.
+- Preserve o contrato do endpoint `POST /gerar` ao alterar frontend ou backend.
+- Mantenha os dados da escala somente em estado local, a menos que uma nova persistência seja solicitada.
+- Use os componentes existentes de layout, feedback e modal antes de criar equivalentes.
+- Mantenha os componentes específicos da escala dentro de `pages/escala`.
+- Use `@/` para imports internos do frontend.
+- Mantenha a identidade visual, os temas claro e escuro e o comportamento responsivo.
+- Não edite componentes de `components/ui` sem necessidade; eles são a base do shadcn/ui.
+- Preserve o resultado anterior quando uma nova geração ou exportação falhar.
+- Não adicione infraestrutura de testes ou dependências sem solicitação. O projeto não possui suíte automatizada.
 
-**Regra central:** nenhum funcionário pode trabalhar mais de 6 dias consecutivos.
+## Verificação
 
-**Estratégia (dia a dia):**
-1. Dias bloqueados (`dias_bloqueados`): ninguém recebe folga, todos incrementam o contador de consecutivos.
-2. Para cada dia livre:
-   - **Obrigatório** (consecutivo ≥ 6): deve receber folga.
-   - **Urgente** (consecutivo = 5): recebe folga se ainda há capacidade (buffer de 1 dia).
-   - Dentro de cada nível os funcionários são embaralhados (distribuição justa).
-   - Limite de folgas por dia: `total_funcionarios - minimo_por_dia`.
-3. **Carry-over do mês anterior:** ao gerar, busca o número de dias consecutivos que cada funcionário estava trabalhando no final do mês anterior (mesma consulta ao Supabase).
+Para alterações no frontend:
 
-**Toggle manual:** na página de detalhe o usuário pode clicar em qualquer célula para adicionar/remover folga, respeitando `minimo_por_dia` e `dias_bloqueados`.
+```bash
+cd frontend
+npx eslint <arquivos-alterados>
+npm run build
+```
 
----
+Para alterações no backend ou na integração:
 
-## O que está pendente
+```bash
+python -m py_compile backend/main.py
+docker compose config
+```
 
-1. **RLS policies** nas 4 tabelas (`setores`, `funcionarios`, `escalas`, `folgas`)
+Para o script administrativo:
+
+```bash
+node --check scripts/create-user.js
+```
+
+Além dos comandos, confirme o fluxo afetado no navegador. Não considere a geração válida sem verificar o body enviado, o tratamento da resposta e a preservação do resultado em caso de erro.
