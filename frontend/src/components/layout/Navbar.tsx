@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { NavLink, useNavigate } from "react-router-dom"
-import { CalendarClock, Home, LogOut, Menu, Moon, Settings, Sun, Wheat, X } from "lucide-react"
+import { CalendarClock, Home, LogOut, Moon, Settings, Sun, Wheat } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
