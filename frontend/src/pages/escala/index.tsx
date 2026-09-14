@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { AlertTriangle, CalendarClock, CalendarPlus, FileDown, Info, Loader2, Plus, Sparkles, UsersRound } from "lucide-react"
+import { AlertTriangle, CalendarClock, CalendarPlus, FileDown, Loader2, Plus, Sparkles, UsersRound } from "lucide-react"
 import { PageHeader } from "@/components/layout/PageHeader"
 import { PageLayout } from "@/components/layout/PageLayout"
 import { FormField } from "@/components/layout/FormField"
@@ -170,9 +170,6 @@ export default function Escala() {
           </div>
           <div>
             <h2 className="text-sm font-semibold text-foreground">Nova escala</h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              Esta escala não terá vínculo com os cadastros do sistema.
-            </p>
           </div>
         </div>
 
@@ -188,7 +185,7 @@ export default function Escala() {
             onChange={(event) => setNomeSetor(event.target.value)}
           />
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-4">
             <SelectField
               id="mes-escala"
               label="Mês"
@@ -236,49 +233,63 @@ export default function Escala() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-border/70 bg-background/50 p-4 sm:p-5">
-            <div className="mb-4 flex items-start gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10">
-                <UsersRound size={18} className="text-primary" strokeWidth={1.75} />
-              </div>
-              <div>
-                <h2 className="text-sm font-semibold text-foreground">Funcionários</h2>
-                <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                  Informe a última folga de cada funcionário em {periodoAnterior.rotulo}.
+          <div className="overflow-hidden rounded-xl border border-border/70 bg-background/40">
+            <div className="flex items-start gap-2.5 px-4 py-3.5 sm:px-5">
+              <UsersRound size={18} className="mt-0.5 shrink-0 text-primary" strokeWidth={1.75} />
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-sm font-semibold text-foreground">Funcionários</h2>
+                  <span className="rounded-full bg-muted px-1.5 py-0.5 text-[0.625rem] font-semibold tabular-nums text-muted-foreground">
+                    {funcionarios.length}
+                  </span>
+                </div>
+                <p
+                  id="periodo-anterior-escala"
+                  className="mt-0.5 text-xs leading-relaxed text-muted-foreground"
+                >
+                  Última folga referente a {periodoAnterior.rotulo}.
                 </p>
               </div>
             </div>
 
-            <div className="space-y-3">
-              {funcionarios.map((funcionario, index) => (
-                <FuncionarioEscalaRow
-                  key={funcionario.id}
-                  funcionario={funcionario}
-                  indice={index}
-                  dataMinima={periodoAnterior.inicio}
-                  dataMaxima={periodoAnterior.fim}
-                  onChange={updateFuncionario}
-                  onRemove={removeFuncionario}
-                />
-              ))}
+            <div className="border-t border-border/60">
+              <div className="hidden grid-cols-[2rem_minmax(0,1fr)_minmax(9rem,0.55fr)_2.5rem] items-center gap-3 px-3 pb-1 pt-3 text-[0.625rem] font-semibold uppercase tracking-[0.09em] text-muted-foreground min-[480px]:grid sm:px-4">
+                <span aria-hidden="true" />
+                <span>Nome</span>
+                <span>Última folga (opcional)</span>
+                <span className="sr-only">Ações</span>
+              </div>
+
+              {funcionarios.length > 0 ? (
+                funcionarios.map((funcionario, index) => (
+                  <FuncionarioEscalaRow
+                    key={funcionario.id}
+                    funcionario={funcionario}
+                    indice={index}
+                    dataMinima={periodoAnterior.inicio}
+                    dataMaxima={periodoAnterior.fim}
+                    onChange={updateFuncionario}
+                    onRemove={removeFuncionario}
+                  />
+                ))
+              ) : (
+                <p className="border-t border-border/60 px-4 py-4 text-xs text-muted-foreground">
+                  Nenhum funcionário adicionado.
+                </p>
+              )}
+
+              <div className="border-t border-border/60 px-3 py-2.5 sm:px-4">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={addFuncionario}
+                  className="h-9 w-full justify-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
+                >
+                  <Plus size={15} />
+                  Adicionar funcionário
+                </Button>
+              </div>
             </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={addFuncionario}
-              className="mt-4 h-9 w-full gap-2 text-xs font-semibold sm:w-auto"
-            >
-              <Plus size={15} />
-              Adicionar funcionário
-            </Button>
-          </div>
-
-          <div className="flex items-start gap-2.5 rounded-xl border border-border/60 bg-muted/30 px-3.5 py-3 text-muted-foreground">
-            <Info size={15} className="mt-0.5 shrink-0 text-primary" strokeWidth={1.75} />
-            <p className="text-xs leading-relaxed">
-              Os dados desta escala não serão salvos no sistema.
-            </p>
           </div>
 
           <Button

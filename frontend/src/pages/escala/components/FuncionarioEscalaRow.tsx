@@ -1,5 +1,6 @@
-import { Trash2, UserRound } from "lucide-react"
-import { FormField } from "@/components/layout/FormField"
+import { Trash2 } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 
 export type FuncionarioEscala = {
@@ -33,50 +34,61 @@ export function FuncionarioEscalaRow({
   const ultimaFolgaId = `ultima-folga-escala-${funcionario.id}`
 
   return (
-    <div className="rounded-xl border border-border/70 bg-card px-3.5 py-3.5 sm:px-4">
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <UserRound size={14} strokeWidth={1.75} />
-          </span>
-          <span className="truncate text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-            Funcionário {indice + 1}
-          </span>
-        </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => onRemove(funcionario.id)}
-          aria-label={`Remover funcionário ${indice + 1}`}
-          className="shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+    <div className="border-t border-border/60 px-3 py-3 sm:px-4">
+      <div className="grid grid-cols-[2rem_minmax(0,1fr)_2.5rem] gap-x-2.5 gap-y-2.5 min-[480px]:grid-cols-[2rem_minmax(0,1fr)_minmax(9rem,0.55fr)_2.5rem] min-[480px]:items-center min-[480px]:gap-x-3">
+        <span
+          aria-hidden="true"
+          className="row-start-1 flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-[0.6875rem] font-bold tabular-nums text-primary min-[480px]:self-center"
         >
-          <Trash2 size={15} strokeWidth={1.75} />
-        </Button>
-      </div>
+          {String(indice + 1).padStart(2, "0")}
+        </span>
+        <span className="sr-only">Funcionário {indice + 1}</span>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,0.45fr)] sm:items-end">
-        <FormField
-          id={nomeId}
-          label="Nome do funcionário"
-          placeholder="Ex.: Maria da Silva"
-          value={funcionario.nome}
-          onChange={(event) => onChange(funcionario.id, "nome", event.target.value)}
-        />
-        <div>
-          <FormField
+        <div className="col-span-2 row-start-2 min-[480px]:col-span-1 min-[480px]:col-start-2 min-[480px]:row-start-1">
+          <Label
+            htmlFor={nomeId}
+            className="mb-1.5 text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-foreground min-[480px]:sr-only"
+          >
+            Nome
+          </Label>
+          <Input
+            id={nomeId}
+            placeholder="Ex.: Maria da Silva"
+            value={funcionario.nome}
+            onChange={(event) => onChange(funcionario.id, "nome", event.target.value)}
+            className="h-10 px-3 text-sm"
+          />
+        </div>
+
+        <div className="col-span-2 row-start-3 min-[480px]:col-span-1 min-[480px]:col-start-3 min-[480px]:row-start-1">
+          <Label
+            htmlFor={ultimaFolgaId}
+            className="mb-1.5 text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-foreground min-[480px]:sr-only"
+          >
+            Última folga (opcional)
+          </Label>
+          <Input
             id={ultimaFolgaId}
-            label="Última folga"
             type="date"
             min={dataMinima}
             max={dataMaxima}
             value={funcionario.ultimaFolga}
+            aria-describedby="periodo-anterior-escala"
             onChange={(event) => onChange(funcionario.id, "ultimaFolga", event.target.value)}
+            className="h-10 px-3 text-sm"
           />
-          <p className="mt-1.5 text-[0.625rem] text-muted-foreground">
-            Campo opcional
-          </p>
         </div>
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-lg"
+          onClick={() => onRemove(funcionario.id)}
+          aria-label={`Remover funcionário ${indice + 1}`}
+          className="!size-10 row-start-1 col-start-3 shrink-0 self-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive min-[480px]:col-start-4"
+        >
+          <Trash2 size={16} strokeWidth={1.75} />
+        </Button>
       </div>
     </div>
   )
